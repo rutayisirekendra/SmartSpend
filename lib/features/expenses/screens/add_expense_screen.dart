@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
+import 'package:smart_expense_tracker/models/expense_model.dart';
+import 'package:uuid/uuid.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   const AddExpenseScreen({Key? key}) : super(key: key);
@@ -15,15 +18,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _vendorController = TextEditingController();
 
-  String _selectedCategory = 'Food';
+  String _selectedCategory = 'Food & Drink';
   DateTime _selectedDate = DateTime.now();
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
   // Enhanced categories with fun emojis and vibrant colors
   final List<Map<String, dynamic>> _categories = [
-    {'name': 'Food', 'icon': Icons.restaurant_rounded, 'color': Colors.orange, 'emoji': '🍕'},
+    {'name': 'Food & Drink', 'icon': Icons.restaurant_rounded, 'color': Colors.orange, 'emoji': '🍕'},
     {'name': 'Transport', 'icon': Icons.directions_car_rounded, 'color': Colors.blue, 'emoji': '🚗'},
     {'name': 'Entertainment', 'icon': Icons.movie_rounded, 'color': Colors.purple, 'emoji': '🎬'},
     {'name': 'Shopping', 'icon': Icons.shopping_bag_rounded, 'color': Colors.pink, 'emoji': '🛍️'},
@@ -53,6 +57,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
     _animationController.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
+    _vendorController.dispose();
     super.dispose();
   }
 
@@ -60,10 +65,25 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
     if (_formKey.currentState!.validate()) {
       final amount = double.tryParse(_amountController.text);
       final description = _descriptionController.text.trim();
+      final vendor = _vendorController.text.trim();
 
       if (amount != null) {
-        // TODO: Save expense to Hive/Firestore
-        print('Saving expense: $amount for $description in $_selectedCategory');
+        // Save expense to Hive
+        final expenseBox = Hive.box<Expense>('expenses');
+
+        final newExpense = Expense(
+          id: const Uuid().v4(),
+          userId: 'current_user',
+          category: _selectedCategory,
+          description: description.isNotEmpty ? description : 'No description',
+          amount: amount,
+          date: _selectedDate,
+          vendor: vendor.isNotEmpty ? vendor : 'General',
+        );
+
+        expenseBox.put(newExpense.id, newExpense);
+
+        print('💾 Expense saved: \$$amount for $description in $_selectedCategory');
 
         // Fun success animation
         _animationController.reverse().then((_) {
@@ -123,7 +143,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
       backgroundColor: AppTheme.offWhite,
       body: Column(
         children: [
-          // Original Header Section (Keeping your preferred design)
           _buildHeaderSection(),
           Expanded(
             child: AnimatedBuilder(
@@ -168,7 +187,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back Button and Title Row
           Row(
             children: [
               IconButton(
@@ -209,8 +227,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
             ],
           ),
           SizedBox(height: 16),
-
-          // Quick Tips
           Row(
             children: [
               Container(
@@ -245,23 +261,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
         key: _formKey,
         child: ListView(
           children: [
-            // Amount Card with fun animation
             _buildAmountCard(),
             SizedBox(height: 16),
-
-            // Category Selection with horizontal scroll
             _buildCategorySelection(),
             SizedBox(height: 16),
-
-            // Description Card
             _buildDescriptionCard(),
             SizedBox(height: 16),
-
-            // Date Card
+            _buildVendorCard(),
+            SizedBox(height: 16),
             _buildDateCard(),
             SizedBox(height: 24),
-
-            // Animated Save Button
             _buildSaveButton(),
             SizedBox(height: 20),
           ],
@@ -497,6 +506,58 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
               color: Colors.grey[800],
             ),
             maxLines: 2,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVendorCard() {
+    return ModernCard(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.purple, Colors.purpleAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.store_rounded, size: 18, color: Colors.white),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'VENDOR/PLACE',
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          TextFormField(
+            controller: _vendorController,
+            decoration: InputDecoration.collapsed(
+              hintText: 'Where did you spend? 🏪',
+              hintStyle: GoogleFonts.poppins(
+                color: Colors.grey[400],
+                fontSize: 16,
+              ),
+            ),
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.grey[800],
+            ),
           ),
         ],
       ),

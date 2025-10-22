@@ -3,9 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
+import 'package:smart_expense_tracker/common_widgets/primary_button.dart';
 import 'package:smart_expense_tracker/features/budget/screens/add_budget_screen.dart';
 import 'package:smart_expense_tracker/models/budget_model.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
+import 'package:smart_expense_tracker/models/expense_model.dart';
+import 'package:smart_expense_tracker/models/category_model.dart';
 
 class BudgetScreen extends StatefulWidget {
   const BudgetScreen({super.key});
@@ -23,7 +26,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
       backgroundColor: AppTheme.offWhite,
       body: Column(
         children: [
-          // Enhanced Header Section
           _buildHeaderSection(),
           Expanded(
             child: ValueListenableBuilder<Box<Budget>>(
@@ -32,43 +34,61 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 final now = DateTime.now();
                 final budgets = box.values.toList();
 
+                // DEBUG: Print all budgets
+                print('🔍 DEBUG: Total budgets in Hive: ${budgets.length}');
+                for (var budget in budgets) {
+                  print('   📊 Budget: ${budget.id} | Type: ${budget.budgetType} | Month: ${budget.month} | StartDate: ${budget.startDate}');
+                }
+
+                // FIXED: Use correct fields for filtering
                 final currentBudgets = budgets.where((budget) {
                   if (budget.budgetType != _selectedView) return false;
 
                   if (_selectedView == BudgetType.monthly) {
-                    return budget.startDate.year == now.year && budget.startDate.month == now.month;
+                    // Use month field for monthly budgets
+                    return budget.month.year == now.year && budget.month.month == now.month;
                   } else {
+                    // Use startDate field for yearly budgets
                     return budget.startDate.year == now.year;
                   }
                 }).toList();
+
+                print('🎯 DEBUG: Found ${currentBudgets.length} matching budgets for $_selectedView');
 
                 if (currentBudgets.isEmpty) {
                   return _buildEmptyState(context);
                 }
 
                 final currentBudget = currentBudgets.first;
-                final totalSpent = _calculateTotalSpent(currentBudget);
 
-                return ListView(
-                  padding: const EdgeInsets.all(20.0),
-                  children: [
-                    _buildBudgetOverviewCard(currentBudget, totalSpent),
-                    const SizedBox(height: 24),
-                    _buildCategoryBreakdownSection(currentBudget),
-                  ],
+                return ValueListenableBuilder<Box<Expense>>(
+                  valueListenable: Hive.box<Expense>('expenses').listenable(),
+                  builder: (context, expenseBox, _) {
+                    final allExpenses = expenseBox.values.toList().cast<Expense>();
+                    final totalSpent = _calculateTotalSpent(currentBudget, allExpenses);
+                    final periodExpenses = _getExpensesForBudget(currentBudget, allExpenses);
+
+                    return ListView(
+                      padding: const EdgeInsets.all(20.0),
+                      children: [
+                        _buildBudgetOverviewCard(currentBudget, totalSpent),
+                        const SizedBox(height: 24),
+                        _buildCategoryBreakdownSection(currentBudget, periodExpenses),
+                      ],
+                    );
+                  },
                 );
               },
             ),
           ),
         ],
       ),
-      // Floating Action Button positioned better
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddBudgetScreen())),
         backgroundColor: AppTheme.accentOrange,
         foregroundColor: Colors.white,
         elevation: 4,
-        icon: Icon(Icons.add_chart_rounded),
+        icon: const Icon(Icons.add_chart_rounded),
         label: Text(
           'Create Budget',
           style: GoogleFonts.poppins(
@@ -79,6 +99,33 @@ class _BudgetScreenState extends State<BudgetScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  // FIXED: Use correct fields for expense filtering
+  double _calculateTotalSpent(Budget budget, List<Expense> allExpenses) {
+    final periodExpenses = _getExpensesForBudget(budget, allExpenses);
+    return periodExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
+  }
+
+  double _calculateCategorySpent(String categoryName, List<Expense> periodExpenses) {
+    final categoryExpenses = periodExpenses.where((expense) =>
+    expense.category.toLowerCase() == categoryName.toLowerCase()
+    ).toList();
+    return categoryExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
+  }
+
+  // FIXED: Use correct fields for expense period matching
+  List<Expense> _getExpensesForBudget(Budget budget, List<Expense> allExpenses) {
+    if (budget.budgetType == BudgetType.monthly) {
+      return allExpenses.where((expense) =>
+      expense.date.year == budget.month.year &&
+          expense.date.month == budget.month.month
+      ).toList();
+    } else {
+      return allExpenses.where((expense) =>
+      expense.date.year == budget.startDate.year
+      ).toList();
+    }
   }
 
   Widget _buildHeaderSection() {
@@ -107,13 +154,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back Button and Title Row
           Row(
             children: [
-              // Fixed Back Button - Navigate to MainScreen with bottom nav
               IconButton(
                 onPressed: () {
-                  // Navigate to MainScreen which will show Dashboard with bottom nav
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const MainScreen()),
@@ -154,8 +198,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
             ],
           ),
           SizedBox(height: 20),
-
-          // Budget Type Toggle - Centered
           Container(
             padding: EdgeInsets.all(4),
             decoration: BoxDecoration(
@@ -204,10 +246,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
       ),
     );
   }
-
-  // ... (keep all your existing methods below exactly as they are)
-  // _buildBudgetOverviewCard, _buildCategoryBreakdownSection, _buildCategoryBudgetCard,
-  // _buildEmptyState, _buildEmptyCategoriesState, and all helper methods remain unchanged
 
   Widget _buildBudgetOverviewCard(Budget budget, double totalSpent) {
     final remaining = budget.totalAmount - totalSpent;
@@ -260,8 +298,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
             ],
           ),
           SizedBox(height: 20),
-
-          // Budget Amounts
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -313,8 +349,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
             ],
           ),
           SizedBox(height: 24),
-
-          // Progress Bar
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
@@ -327,8 +361,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
             ),
           ),
           SizedBox(height: 12),
-
-          // Progress Details
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -355,7 +387,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
     );
   }
 
-  Widget _buildCategoryBreakdownSection(Budget budget) {
+  Widget _buildCategoryBreakdownSection(Budget budget, List<Expense> periodExpenses) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -389,14 +421,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
           ],
         ),
         const SizedBox(height: 16),
-
         if (budget.categoryBudgets.isEmpty)
           _buildEmptyCategoriesState()
         else
           ...budget.categoryBudgets.entries.map((entry) {
             final categoryName = entry.key;
             final categoryBudget = entry.value;
-            final categorySpent = _calculateCategorySpent(categoryName);
+            final categorySpent = _calculateCategorySpent(categoryName, periodExpenses);
             return _buildCategoryBudgetCard(categoryName, categoryBudget, categorySpent);
           }).toList(),
       ],
@@ -453,7 +484,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '\$${spent.toStringAsFixed(0)}',
+                      '\$${spent.toStringAsFixed(2)}',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -461,7 +492,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       ),
                     ),
                     Text(
-                      'of \$${budget.toStringAsFixed(0)}',
+                      'of \$${budget.toStringAsFixed(2)}',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.grey[500],
@@ -547,6 +578,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
               height: 1.4,
             ),
           ),
+          // REMOVED: The "Create Monthly/Yearly Budget" button
+          // Now users will use the main FAB button at the bottom
         ],
       ),
     );
@@ -580,7 +613,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
     );
   }
 
-  // Helper methods
   String _getMonthName(int month) {
     const months = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -602,7 +634,4 @@ class _BudgetScreenState extends State<BudgetScreen> {
     };
     return iconMap[categoryName] ?? Icons.category_rounded;
   }
-
-  double _calculateTotalSpent(Budget budget) => 1231.95; // Placeholder
-  double _calculateCategorySpent(String categoryName) => 250.0; // Placeholder
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
@@ -17,9 +18,6 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
   ExpenseFilter _selectedFilter = ExpenseFilter.all;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
-  // Mock data for now
-  final List<Expense> expenses = [];
 
   @override
   void initState() {
@@ -46,20 +44,55 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
       backgroundColor: AppTheme.offWhite,
       body: Column(
         children: [
-          // Original Header Section (Keeping your preferred design)
-          _buildHeaderSection(),
+          ValueListenableBuilder<Box<Expense>>(
+            valueListenable: Hive.box<Expense>('expenses').listenable(),
+            builder: (context, box, _) {
+              final allExpenses = box.values.toList().cast<Expense>();
+              final totalExpenses = allExpenses.length;
+              final now = DateTime.now();
+              final todayExpenses = allExpenses.where((expense) =>
+              expense.date.year == now.year &&
+                  expense.date.month == now.month &&
+                  expense.date.day == now.day).length;
+              final totalAmount = allExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
+
+              return _buildHeaderSection(totalExpenses, todayExpenses, totalAmount);
+            },
+          ),
           Expanded(
-            child: AnimatedBuilder(
-              animation: _fadeAnimation,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _fadeAnimation.value,
-                  child: child,
+            child: ValueListenableBuilder<Box<Expense>>(
+              valueListenable: Hive.box<Expense>('expenses').listenable(),
+              builder: (context, box, _) {
+                final allExpenses = box.values.toList().cast<Expense>();
+
+                // Sort expenses by date (newest first)
+                allExpenses.sort((a, b) => b.date.compareTo(a.date));
+
+                // Apply filter based on _selectedFilter
+                final filteredExpenses = _filterExpenses(allExpenses);
+
+                // Calculate stats based on allExpenses
+                final totalExpenses = allExpenses.length;
+                final now = DateTime.now();
+                final todayExpensesCount = allExpenses.where((expense) =>
+                expense.date.year == now.year &&
+                    expense.date.month == now.month &&
+                    expense.date.day == now.day).length;
+                final totalAmount = allExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
+
+                return AnimatedBuilder(
+                  animation: _fadeAnimation,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _fadeAnimation.value,
+                      child: child,
+                    );
+                  },
+                  child: filteredExpenses.isEmpty
+                      ? _buildEmptyState(context)
+                      : _buildExpensesList(context, filteredExpenses, totalExpenses, todayExpensesCount, totalAmount),
                 );
               },
-              child: expenses.isEmpty
-                  ? _buildEmptyState(context)
-                  : _buildExpensesList(context),
             ),
           ),
         ],
@@ -67,12 +100,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
     );
   }
 
-  Widget _buildHeaderSection() {
-    final totalExpenses = expenses.length;
-    final todayExpenses = expenses.where((expense) =>
-    expense.date.day == DateTime.now().day).length;
-    final totalAmount = expenses.fold(0.0, (sum, expense) => sum + expense.amount);
-
+  Widget _buildHeaderSection(int totalExpenses, int todayExpenses, double totalAmount) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
@@ -98,7 +126,6 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back Button and Title Row
           Row(
             children: [
               IconButton(
@@ -143,12 +170,8 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             ],
           ),
           SizedBox(height: 20),
-
-          // Expense Stats
           _buildExpenseStats(totalExpenses, todayExpenses, totalAmount),
           SizedBox(height: 16),
-
-          // Expense Filter Toggle
           Container(
             padding: EdgeInsets.all(4),
             decoration: BoxDecoration(
@@ -175,9 +198,9 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildStatItem(totalExpenses.toString(), 'Goals', Icons.flag_rounded),
-        _buildStatItem(todayExpenses.toString(), 'Completed', Icons.check_circle_rounded),
-        _buildStatItem('\$${totalAmount.toStringAsFixed(0)}', 'Saved', Icons.savings_rounded),
+        _buildStatItem(totalExpenses.toString(), 'Total Items', Icons.receipt_long_rounded),
+        _buildStatItem(todayExpenses.toString(), 'Today\'s Items', Icons.today_rounded),
+        _buildStatItem('\$${totalAmount.toStringAsFixed(0)}', 'Total Spent', Icons.savings_rounded),
       ],
     );
   }
@@ -249,7 +272,6 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Animated empty state illustration
           AnimatedContainer(
             duration: Duration(milliseconds: 500),
             width: 160,
@@ -295,7 +317,6 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             ),
           ),
           SizedBox(height: 32),
-          // Fun animated button
           AnimatedContainer(
             duration: Duration(milliseconds: 400),
             decoration: BoxDecoration(
@@ -315,8 +336,11 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             ),
             child: ElevatedButton.icon(
               onPressed: () {
-                // Navigate to add expense
-                Navigator.of(context).pop();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MainScreen()),
+                      (route) => false,
+                );
               },
               icon: Icon(Icons.add_rounded, size: 20, color: Colors.white),
               label: Text(
@@ -341,13 +365,10 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
     );
   }
 
-  Widget _buildExpensesList(BuildContext context) {
-    final filteredExpenses = _filterExpenses(expenses);
-
+  Widget _buildExpensesList(BuildContext context, List<Expense> filteredExpenses, int totalExpenses, int todayExpensesCount, double totalAmount) {
     return ListView(
       padding: EdgeInsets.all(20),
       children: [
-        // Enhanced Expenses Summary Card
         ModernCard(
           padding: EdgeInsets.all(20),
           child: Column(
@@ -384,7 +405,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
                         ),
                         SizedBox(width: 4),
                         Text(
-                          '${filteredExpenses.length} EXPENSES',
+                          '${filteredExpenses.length} ${ _selectedFilter == ExpenseFilter.all ? 'ITEMS' : _selectedFilter == ExpenseFilter.today ? 'TODAY' : 'THIS WEEK'}',
                           style: GoogleFonts.poppins(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -400,14 +421,14 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
               SizedBox(height: 16),
               Row(
                 children: [
-                  _buildSummaryItem(expenses.length.toString(), 'Total', Icons.receipt_long_rounded),
+                  _buildSummaryItem(totalExpenses.toString(), 'Total Items', Icons.receipt_long_rounded),
                   _buildSummaryItem(
-                    expenses.where((expense) => expense.date.day == DateTime.now().day).length.toString(),
-                    'Today',
+                    todayExpensesCount.toString(),
+                    'Today\'s Items',
                     Icons.today_rounded,
                   ),
                   _buildSummaryItem(
-                    '\$${expenses.fold(0.0, (sum, expense) => sum + expense.amount).toStringAsFixed(0)}',
+                    '\$${totalAmount.toStringAsFixed(0)}',
                     'Total Spent',
                     Icons.attach_money_rounded,
                   ),
@@ -417,8 +438,6 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
           ),
         ),
         SizedBox(height: 24),
-
-        // Enhanced Expenses List Header
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
@@ -431,7 +450,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
               Icon(Icons.history_rounded, color: AppTheme.primaryTeal, size: 20),
               SizedBox(width: 8),
               Text(
-                "RECENT EXPENSES",
+                _selectedFilter == ExpenseFilter.all ? 'ALL EXPENSES' : _selectedFilter == ExpenseFilter.today ? 'TODAY\'S EXPENSES' : 'THIS WEEK\'S EXPENSES',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -459,8 +478,6 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
           ),
         ),
         SizedBox(height: 16),
-
-        // Expenses List with staggered animation
         ...filteredExpenses.asMap().entries.map((entry) {
           final index = entry.key;
           final expense = entry.value;
@@ -509,20 +526,23 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
     );
   }
 
-  List<Expense> _filterExpenses(List<Expense> expenses) {
+  List<Expense> _filterExpenses(List<Expense> allExpenses) {
     final now = DateTime.now();
     switch (_selectedFilter) {
       case ExpenseFilter.today:
-        return expenses.where((expense) =>
-        expense.date.day == now.day &&
+        return allExpenses.where((expense) =>
+        expense.date.year == now.year &&
             expense.date.month == now.month &&
-            expense.date.year == now.year).toList();
+            expense.date.day == now.day).toList();
       case ExpenseFilter.week:
-        final weekAgo = now.subtract(Duration(days: 7));
-        return expenses.where((expense) => expense.date.isAfter(weekAgo)).toList();
+        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        return allExpenses.where((expense) {
+          return !expense.date.isBefore(DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day)) &&
+              !expense.date.isAfter(now);
+        }).toList();
       case ExpenseFilter.all:
       default:
-        return expenses;
+        return allExpenses;
     }
   }
 }

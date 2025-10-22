@@ -29,6 +29,17 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
   void initState() {
     super.initState();
     _updateBudgetPeriodLabel();
+    _initializeCategoryControllers();
+  }
+
+  void _initializeCategoryControllers() {
+    // Initialize controllers for existing categories
+    final categoryBox = Hive.box<Category>('categories');
+    final categories = categoryBox.values.toList();
+
+    for (var category in categories) {
+      _categoryControllers[category.name] = TextEditingController();
+    }
   }
 
   @override
@@ -112,11 +123,13 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
       });
 
       final budgetBox = Hive.box<Budget>('budgets');
+
+      // Create budget using YOUR exact model structure
       final newBudget = Budget(
         id: const Uuid().v4(),
         totalAmount: totalAmount,
         categoryBudgets: categoryBudgets,
-        month: DateTime(_selectedStartDate.year, _selectedStartDate.month),
+        month: DateTime(_selectedStartDate.year, _selectedStartDate.month), // Use month field
         budgetType: _selectedBudgetType,
         startDate: _selectedStartDate,
       );
@@ -134,6 +147,11 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
       Navigator.of(context).pop();
     }
   }
+
+  // All your existing UI methods remain exactly the same:
+  // _buildHeaderSection, _buildBudgetTypeSection, _buildBudgetTypeOption,
+  // _buildPeriodSection, _buildOverallBudgetSection, _buildCategoryBudgetSection,
+  // _buildEmptyCategoriesState, _buildCategoryInputs, _buildSaveButton
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +199,11 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
       ),
     );
   }
+
+  // COPY ALL YOUR EXISTING UI METHODS EXACTLY AS THEY ARE:
+  // _buildHeaderSection, _buildBudgetTypeSection, _buildBudgetTypeOption,
+  // _buildPeriodSection, _buildOverallBudgetSection, _buildCategoryBudgetSection,
+  // _buildEmptyCategoriesState, _buildCategoryInputs, _buildSaveButton
 
   Widget _buildHeaderSection() {
     return ModernCard(

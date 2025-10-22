@@ -92,6 +92,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
         targetAmount: targetAmount,
         currentAmount: currentAmount,
         targetDate: _selectedTargetDate,
+        goalType: _selectedGoalType, // Save the selected goal type
       );
 
       final goalsBox = Hive.box<Goal>('goals');
@@ -129,13 +130,13 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
   Future<void> _selectTargetDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(Duration(days: 30)),
+      initialDate: DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.light(
+            colorScheme: const ColorScheme.light(
               primary: AppTheme.primaryTeal,
               onPrimary: Colors.white,
             ),
@@ -187,7 +188,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
             AppTheme.primaryTeal.withOpacity(0.9),
           ],
         ),
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
         ),
@@ -202,13 +203,13 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white.withOpacity(0.2),
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +223,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                         height: 1.2,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Set your financial target and track progress',
                       style: GoogleFonts.poppins(
@@ -235,20 +236,20 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Quick Tips
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.lightbulb_rounded, size: 16, color: Colors.white),
+                child: const Icon(Icons.lightbulb_rounded, size: 16, color: Colors.white),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Set realistic goals and track your progress regularly',
@@ -272,14 +273,14 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
         children: [
           // Goal Name Card
           ModernCard(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryTeal.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -290,7 +291,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                         color: AppTheme.primaryTeal,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'GOAL NAME',
                       style: GoogleFonts.poppins(
@@ -302,7 +303,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _goalNameController,
                   decoration: InputDecoration.collapsed(
@@ -322,18 +323,18 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Goal Type Selection
           ModernCard(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: AppTheme.accentOrange.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -344,7 +345,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                         color: AppTheme.accentOrange,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'GOAL TYPE',
                       style: GoogleFonts.poppins(
@@ -356,7 +357,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Wrap(
                   spacing: 12,
                   runSpacing: 12,
@@ -369,7 +370,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                         });
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
                           color: isSelected ? (type['color'] as Color).withOpacity(0.1) : Colors.grey[100],
                           borderRadius: BorderRadius.circular(20),
@@ -386,7 +387,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                               size: 16,
                               color: isSelected ? type['color'] as Color : Colors.grey[600],
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
                               type['label'] as String,
                               style: GoogleFonts.poppins(
@@ -404,29 +405,29 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Amounts Card
           ModernCard(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.attach_money_rounded,
                         size: 16,
                         color: Colors.green,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'AMOUNTS',
                       style: GoogleFonts.poppins(
@@ -438,7 +439,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -452,7 +453,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                               color: Colors.grey[600],
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           TextField(
                             controller: _targetAmountController,
                             keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -468,7 +469,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: AppTheme.primaryTeal),
+                                borderSide: const BorderSide(color: AppTheme.primaryTeal),
                               ),
                               hintText: '0.00',
                               hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
@@ -482,7 +483,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,7 +495,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                               color: Colors.grey[600],
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           TextField(
                             controller: _currentAmountController,
                             keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -510,7 +511,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: AppTheme.primaryTeal),
+                                borderSide: const BorderSide(color: AppTheme.primaryTeal),
                               ),
                               hintText: '0.00',
                               hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
@@ -529,29 +530,29 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Target Date Card
           ModernCard(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.blue.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.calendar_today_rounded,
                         size: 16,
                         color: Colors.blue,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'TARGET DATE',
                       style: GoogleFonts.poppins(
@@ -563,12 +564,12 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 GestureDetector(
                   onTap: _selectTargetDate,
                   child: Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[300]!),
                       borderRadius: BorderRadius.circular(12),
@@ -576,7 +577,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.calendar_today_rounded, size: 24, color: Colors.grey[500]),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _targetDateController.text.isEmpty
@@ -603,7 +604,7 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
                   ),
                 ),
                 if (_targetDateController.text.isNotEmpty) ...[
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     'Having a target date helps you stay motivated and track progress!',
                     style: GoogleFonts.poppins(
@@ -616,12 +617,12 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
               ],
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Create Goal Button
           ElevatedButton.icon(
             onPressed: _createGoal,
-            icon: Icon(Icons.add_task_rounded, size: 20),
+            icon: const Icon(Icons.add_task_rounded, size: 20),
             label: Text(
               'CREATE GOAL',
               style: GoogleFonts.poppins(
@@ -632,14 +633,14 @@ class _NewGoalScreenState extends State<AddGoalScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.accentOrange,
               foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
               elevation: 2,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
       ),
     );

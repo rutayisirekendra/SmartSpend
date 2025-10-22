@@ -21,8 +21,8 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       totalAmount: fields[1] as double,
       categoryBudgets: (fields[2] as Map).cast<String, double>(),
       month: fields[3] as DateTime,
-      budgetType: fields[4] as BudgetType?,
-      startDate: fields[5] as DateTime?,
+      budgetType: fields[4] as BudgetType,
+      startDate: fields[5] as DateTime,
     );
   }
 

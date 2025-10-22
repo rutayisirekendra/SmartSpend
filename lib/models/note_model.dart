@@ -28,6 +28,9 @@ class Note extends HiveObject {
   @HiveField(7)
   final List<String> tags;
 
+  @HiveField(8) // Add this new field
+  final bool isCompleted;
+
   Note({
     required this.id,
     required this.userId,
@@ -37,6 +40,7 @@ class Note extends HiveObject {
     required this.updatedAt,
     this.isImportant = false,
     this.tags = const [],
+    this.isCompleted = false, // Add default value
   });
 
   // Copy with method for updating notes
@@ -49,6 +53,7 @@ class Note extends HiveObject {
     DateTime? updatedAt,
     bool? isImportant,
     List<String>? tags,
+    bool? isCompleted, // Add this parameter
   }) {
     return Note(
       id: id ?? this.id,
@@ -59,6 +64,7 @@ class Note extends HiveObject {
       updatedAt: updatedAt ?? this.updatedAt,
       isImportant: isImportant ?? this.isImportant,
       tags: tags ?? this.tags,
+      isCompleted: isCompleted ?? this.isCompleted, // Include in copyWith
     );
   }
 
@@ -73,6 +79,7 @@ class Note extends HiveObject {
       'updatedAt': updatedAt.millisecondsSinceEpoch,
       'isImportant': isImportant,
       'tags': tags,
+      'isCompleted': isCompleted, // Add to map
     };
   }
 
@@ -87,6 +94,7 @@ class Note extends HiveObject {
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt']),
       isImportant: map['isImportant'] ?? false,
       tags: List<String>.from(map['tags'] ?? []),
+      isCompleted: map['isCompleted'] ?? false, // Add from map
     );
   }
 }
