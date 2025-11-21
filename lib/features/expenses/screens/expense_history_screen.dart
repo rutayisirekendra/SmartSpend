@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
+import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
+import 'package:smart_expense_tracker/common_widgets/glassmorphic_card.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/features/expenses/widgets/expense_list_item.dart';
 import 'package:smart_expense_tracker/models/expense_model.dart';
+import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 
 class ExpenseHistoryScreen extends StatefulWidget {
   const ExpenseHistoryScreen({super.key});
@@ -40,62 +43,75 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.offWhite,
-      body: Column(
-        children: [
-          ValueListenableBuilder<Box<Expense>>(
-            valueListenable: Hive.box<Expense>('expenses').listenable(),
-            builder: (context, box, _) {
-              final allExpenses = box.values.toList().cast<Expense>();
-              final totalExpenses = allExpenses.length;
-              final now = DateTime.now();
-              final todayExpenses = allExpenses.where((expense) =>
-              expense.date.year == now.year &&
-                  expense.date.month == now.month &&
-                  expense.date.day == now.day).length;
-              final totalAmount = allExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
-
-              return _buildHeaderSection(totalExpenses, todayExpenses, totalAmount);
-            },
-          ),
-          Expanded(
-            child: ValueListenableBuilder<Box<Expense>>(
+    return ThemedBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            ValueListenableBuilder<Box<Expense>>(
               valueListenable: Hive.box<Expense>('expenses').listenable(),
               builder: (context, box, _) {
-                final allExpenses = box.values.toList().cast<Expense>();
-
-                // Sort expenses by date (newest first)
-                allExpenses.sort((a, b) => b.date.compareTo(a.date));
-
-                // Apply filter based on _selectedFilter
-                final filteredExpenses = _filterExpenses(allExpenses);
-
-                // Calculate stats based on allExpenses
+                // Get current user ID and filter expenses
+                final currentUserId = context.read<AuthService>().currentUser?.uid;
+                final allExpenses = box.values
+                    .where((expense) => expense.userId == currentUserId)
+                    .toList()
+                    .cast<Expense>();
+                    
                 final totalExpenses = allExpenses.length;
                 final now = DateTime.now();
-                final todayExpensesCount = allExpenses.where((expense) =>
+                final todayExpenses = allExpenses.where((expense) =>
                 expense.date.year == now.year &&
                     expense.date.month == now.month &&
                     expense.date.day == now.day).length;
                 final totalAmount = allExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
 
-                return AnimatedBuilder(
-                  animation: _fadeAnimation,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _fadeAnimation.value,
-                      child: child,
-                    );
-                  },
-                  child: filteredExpenses.isEmpty
-                      ? _buildEmptyState(context)
-                      : _buildExpensesList(context, filteredExpenses, totalExpenses, todayExpensesCount, totalAmount),
-                );
+                return _buildHeaderSection(totalExpenses, todayExpenses, totalAmount);
               },
             ),
-          ),
-        ],
+            Expanded(
+              child: ValueListenableBuilder<Box<Expense>>(
+                valueListenable: Hive.box<Expense>('expenses').listenable(),
+                builder: (context, box, _) {
+                  // Get current user ID and filter expenses
+                  final currentUserId = context.read<AuthService>().currentUser?.uid;
+                  final allExpenses = box.values
+                      .where((expense) => expense.userId == currentUserId)
+                      .toList()
+                      .cast<Expense>();
+
+                  // Sort expenses by date (newest first)
+                  allExpenses.sort((a, b) => b.date.compareTo(a.date));
+
+                  // Apply filter based on _selectedFilter
+                  final filteredExpenses = _filterExpenses(allExpenses);
+
+                  // Calculate stats based on allExpenses
+                  final totalExpenses = allExpenses.length;
+                  final now = DateTime.now();
+                  final todayExpensesCount = allExpenses.where((expense) =>
+                  expense.date.year == now.year &&
+                      expense.date.month == now.month &&
+                      expense.date.day == now.day).length;
+                  final totalAmount = allExpenses.fold(0.0, (sum, expense) => sum + expense.amount);
+
+                  return AnimatedBuilder(
+                    animation: _fadeAnimation,
+                    builder: (context, child) {
+                      return Opacity(
+                        opacity: _fadeAnimation.value,
+                        child: child,
+                      );
+                    },
+                    child: filteredExpenses.isEmpty
+                        ? _buildEmptyState(context)
+                        : _buildExpensesList(context, filteredExpenses, totalExpenses, todayExpensesCount, totalAmount),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -109,40 +125,34 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
         left: 20,
         right: 20,
       ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.primaryTeal,
-            AppTheme.primaryTeal.withOpacity(0.9),
-          ],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
+      decoration: AppTheme.getGlassmorphicHeaderDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Back Button and Title Row
           Row(
             children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MainScreen()),
-                        (route) => false,
-                  );
-                },
-                icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  padding: EdgeInsets.all(8),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.getHeaderIconBackground(context),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MainScreen()),
+                          (route) => false,
+                    );
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_rounded, 
+                    color: AppTheme.getHeaderTextColor(context)
+                  ),
+                  style: IconButton.styleFrom(padding: EdgeInsets.all(8)),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,16 +162,16 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppTheme.getHeaderTextColor(context),
                         height: 1.2,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Track and manage your spending history',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -169,23 +179,27 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
               ),
             ],
           ),
-          SizedBox(height: 20),
-          _buildExpenseStats(totalExpenses, todayExpenses, totalAmount),
-          SizedBox(height: 16),
+          const SizedBox(height: 20),
+
+          // Expense Stats
+          _buildExpenseStats(context, totalExpenses, todayExpenses, totalAmount),
+          const SizedBox(height: 16),
+
+          // Filter Toggle
           Container(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: AppTheme.getHeaderIconBackground(context),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildFilterToggle('All', ExpenseFilter.all),
-                SizedBox(width: 4),
-                _buildFilterToggle('Today', ExpenseFilter.today),
-                SizedBox(width: 4),
-                _buildFilterToggle('This Week', ExpenseFilter.week),
+                _buildFilterToggle(context, 'All', ExpenseFilter.all),
+                const SizedBox(width: 4),
+                _buildFilterToggle(context, 'Today', ExpenseFilter.today),
+                const SizedBox(width: 4),
+                _buildFilterToggle(context, 'This Week', ExpenseFilter.week),
               ],
             ),
           ),
@@ -194,29 +208,37 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
     );
   }
 
-  Widget _buildExpenseStats(int totalExpenses, int todayExpenses, double totalAmount) {
+  Widget _buildExpenseStats(BuildContext context, int totalExpenses, int todayExpenses, double totalAmount) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildStatItem(totalExpenses.toString(), 'Total Items', Icons.receipt_long_rounded),
-        _buildStatItem(todayExpenses.toString(), 'Today\'s Items', Icons.today_rounded),
-        _buildStatItem('\$${totalAmount.toStringAsFixed(0)}', 'Total Spent', Icons.savings_rounded),
+        _buildStatItem(context, totalExpenses.toString(), 'Total Items', Icons.receipt_long_rounded),
+        _buildStatItem(context, todayExpenses.toString(), 'Today\'s Items', Icons.today_rounded),
+        _buildStatItem(context, '\$${totalAmount.toStringAsFixed(0)}', 'Total Spent', Icons.savings_rounded),
       ],
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon) {
+  Widget _buildStatItem(BuildContext context, String value, String label, IconData icon) {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: AppTheme.getHeaderIconBackground(context),
             shape: BoxShape.circle,
+            border: Border.all(
+              color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
-          child: Icon(icon, size: 20, color: Colors.white),
+          child: Icon(
+            icon, 
+            size: 20, 
+            color: AppTheme.getHeaderTextColor(context)
+          ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Text(
           value,
           style: GoogleFonts.poppins(
@@ -225,20 +247,22 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 2),
+        const SizedBox(height: 2),
         Text(
           label,
           style: GoogleFonts.poppins(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.8),
+            color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFilterToggle(String text, ExpenseFilter filter) {
+  Widget _buildFilterToggle(BuildContext context, String text, ExpenseFilter filter) {
     final isSelected = _selectedFilter == filter;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -247,9 +271,11 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
           });
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected 
+              ? Colors.white.withValues(alpha: isDark ? 0.9 : 1.0)
+              : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
@@ -258,7 +284,9 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: isSelected ? AppTheme.primaryTeal : Colors.white.withOpacity(0.8),
+              color: isSelected 
+                ? (isDark ? AppTheme.darkPrimaryTeal : AppTheme.primaryTeal)
+                : AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
             ),
           ),
         ),
@@ -278,14 +306,14 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             height: 160,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.grey[100]!, Colors.grey[200]!],
+                colors: [AppTheme.getSurfaceColor(context), AppTheme.getSurfaceColor(context).withOpacity(0.8)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: AppTheme.getSecondaryTextColor(context).withOpacity(0.2),
                   blurRadius: 15,
                   offset: Offset(0, 4),
                 ),
@@ -294,7 +322,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             child: Icon(
               Icons.receipt_long_rounded,
               size: 70,
-              color: Colors.grey[400],
+              color: AppTheme.getSecondaryTextColor(context),
             ),
           ),
           SizedBox(height: 32),
@@ -303,7 +331,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             style: GoogleFonts.poppins(
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: Colors.grey[600],
+              color: AppTheme.getTextColor(context),
             ),
           ),
           SizedBox(height: 12),
@@ -312,7 +340,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 16,
-              color: Colors.grey[500],
+              color: AppTheme.getSecondaryTextColor(context),
               height: 1.4,
             ),
           ),
@@ -321,14 +349,14 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
             duration: Duration(milliseconds: 400),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppTheme.accentOrange, Colors.orange],
+                colors: [AppTheme.getAccentColor(context), AppTheme.getAccentColor(context).withOpacity(0.8)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.accentOrange.withOpacity(0.4),
+                  color: AppTheme.getAccentColor(context).withOpacity(0.4),
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),
@@ -366,95 +394,120 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
   }
 
   Widget _buildExpensesList(BuildContext context, List<Expense> filteredExpenses, int totalExpenses, int todayExpensesCount, double totalAmount) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return ListView(
       padding: EdgeInsets.all(20),
       children: [
-        ModernCard(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'EXPENSES OVERVIEW 📊',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppTheme.accentOrange, Colors.orange],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+        GlassmorphicCard(
+          blur: 15,
+          opacity: isDark ? 0.08 : 0.5,
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'EXPENSES OVERVIEW 📊',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isDark 
+                          ? AppTheme.getHeaderTextColor(context)
+                          : AppTheme.getTextColor(context),
+                        letterSpacing: 1,
                       ),
-                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.trending_up_rounded,
-                          size: 14,
-                          color: Colors.white,
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [AppTheme.accentOrange, Color(0xFFFF8A50)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        SizedBox(width: 4),
-                        Text(
-                          '${filteredExpenses.length} ${ _selectedFilter == ExpenseFilter.all ? 'ITEMS' : _selectedFilter == ExpenseFilter.today ? 'TODAY' : 'THIS WEEK'}',
-                          style: GoogleFonts.poppins(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            letterSpacing: 1,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.accentOrange.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.trending_up_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            '${filteredExpenses.length} ${ _selectedFilter == ExpenseFilter.all ? 'ITEMS' : _selectedFilter == ExpenseFilter.today ? 'TODAY' : 'THIS WEEK'}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  _buildSummaryItem(totalExpenses.toString(), 'Total Items', Icons.receipt_long_rounded),
-                  _buildSummaryItem(
-                    todayExpensesCount.toString(),
-                    'Today\'s Items',
-                    Icons.today_rounded,
-                  ),
-                  _buildSummaryItem(
-                    '\$${totalAmount.toStringAsFixed(0)}',
-                    'Total Spent',
-                    Icons.attach_money_rounded,
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildSummaryItem(totalExpenses.toString(), 'Total Items', Icons.receipt_long_rounded),
+                    _buildSummaryItem(
+                      todayExpensesCount.toString(),
+                      'Today\'s Items',
+                      Icons.today_rounded,
+                    ),
+                    _buildSummaryItem(
+                      '\$${totalAmount.toStringAsFixed(0)}',
+                      'Total Spent',
+                      Icons.attach_money_rounded,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         SizedBox(height: 24),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppTheme.primaryTeal.withOpacity(0.05),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppTheme.primaryTeal.withOpacity(0.05)
+                : AppTheme.primaryTeal.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.primaryTeal.withOpacity(0.1)),
+            border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppTheme.primaryTeal.withOpacity(0.1)
+                  : AppTheme.primaryTeal.withOpacity(0.3),
+            ),
           ),
           child: Row(
             children: [
-              Icon(Icons.history_rounded, color: AppTheme.primaryTeal, size: 20),
+              Icon(
+                Icons.history_rounded, 
+                color: AppTheme.getPrimaryColor(context), 
+                size: 20
+              ),
               SizedBox(width: 8),
               Text(
                 _selectedFilter == ExpenseFilter.all ? 'ALL EXPENSES' : _selectedFilter == ExpenseFilter.today ? 'TODAY\'S EXPENSES' : 'THIS WEEK\'S EXPENSES',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryTeal,
+                  color: AppTheme.getPrimaryColor(context),
                   letterSpacing: 0.5,
                 ),
               ),
@@ -462,7 +515,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryTeal.withOpacity(0.1),
+                  color: AppTheme.getPrimaryColor(context).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -470,7 +523,7 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryTeal,
+                    color: AppTheme.getPrimaryColor(context),
                   ),
                 ),
               ),
@@ -499,26 +552,30 @@ class _ExpenseHistoryScreenState extends State<ExpenseHistoryScreen> with Single
           Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryTeal.withOpacity(0.1),
+              color: AppTheme.getPrimaryColor(context).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 18, color: AppTheme.primaryTeal),
+            child: Icon(
+              icon, 
+              size: 18, 
+              color: AppTheme.getPrimaryColor(context),
+            ),
           ),
           SizedBox(height: 8),
           Text(
             value,
             style: GoogleFonts.poppins(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppTheme.primaryTeal,
+              color: AppTheme.getPrimaryColor(context), // Use theme-aware teal color
             ),
           ),
           SizedBox(height: 4),
           Text(
             label,
             style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey[500],
+              fontSize: 11,
+              color: AppTheme.getSecondaryTextColor(context),
             ),
           ),
         ],

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
+import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/features/goals/screens/add_goal_screen.dart';
 import 'package:smart_expense_tracker/features/goals/screens/update_goal_screen.dart';
 import 'package:smart_expense_tracker/models/goal_model.dart';
+import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 
 class GoalsScreen extends StatefulWidget {
   const GoalsScreen({super.key});
@@ -22,27 +25,33 @@ class _GoalsScreenState extends State<GoalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.offWhite,
-      body: Column(
-        children: [
-          // Enhanced Header Section
-          _buildHeaderSection(),
-          Expanded(
-            child: ValueListenableBuilder<Box<Goal>>(
-              valueListenable: Hive.box<Goal>('goals').listenable(),
-              builder: (context, box, _) {
-                final goals = box.values.toList().cast<Goal>();
+      body: ThemedBackground(
+        child: Column(
+          children: [
+            // Enhanced Header Section
+            _buildHeaderSection(),
+            Expanded(
+              child: ValueListenableBuilder<Box<Goal>>(
+                valueListenable: Hive.box<Goal>('goals').listenable(),
+                builder: (context, box, _) {
+                  // Get current user ID and filter goals
+                  final currentUserId = context.read<AuthService>().currentUser?.uid;
+                  final goals = box.values
+                      .where((goal) => goal.userId == currentUserId)
+                      .toList()
+                      .cast<Goal>();
 
-                // Filter out deleted goals
-                final filteredGoals = goals.where((goal) => !_deletedGoalIds.contains(goal.id)).toList();
+                  // Filter out deleted goals
+                  final filteredGoals = goals.where((goal) => !_deletedGoalIds.contains(goal.id)).toList();
 
-                return filteredGoals.isEmpty
-                    ? _buildEmptyState(context)
-                    : _buildGoalsList(context, filteredGoals, box);
-              },
+                  return filteredGoals.isEmpty
+                      ? _buildEmptyState(context)
+                      : _buildGoalsList(context, filteredGoals, box);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -52,7 +61,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             ),
           );
         },
-        backgroundColor: AppTheme.accentOrange,
+        backgroundColor: AppTheme.getAccentColor(context),
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add_chart_rounded),
@@ -64,7 +73,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -72,7 +81,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
     return ValueListenableBuilder<Box<Goal>>(
       valueListenable: Hive.box<Goal>('goals').listenable(),
       builder: (context, box, _) {
-        final goals = box.values.toList().cast<Goal>();
+        // Get current user ID and filter goals
+        final currentUserId = context.read<AuthService>().currentUser?.uid;
+        final goals = box.values
+            .where((goal) => goal.userId == currentUserId)
+            .toList()
+            .cast<Goal>();
+            
         final filteredGoals = goals.where((goal) => !_deletedGoalIds.contains(goal.id)).toList();
         final totalGoals = filteredGoals.length;
         final completedGoals = filteredGoals.where((goal) => goal.currentAmount >= goal.targetAmount).length;
@@ -87,38 +102,31 @@ class _GoalsScreenState extends State<GoalsScreen> {
             left: 20,
             right: 20,
           ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.primaryTeal,
-                AppTheme.primaryTeal.withOpacity(0.9),
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24),
-            ),
-          ),
+          decoration: AppTheme.getGlassmorphicHeaderDecoration(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back Button and Title Row
               Row(
                 children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const MainScreen()),
-                            (route) => false,
-                      );
-                    },
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                      padding: const EdgeInsets.all(8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.getHeaderIconBackground(context),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MainScreen()),
+                              (route) => false,
+                        );
+                      },
+                      icon: Icon(
+                        Icons.arrow_back_rounded, 
+                        color: AppTheme.getHeaderTextColor(context)
+                      ),
+                      style: IconButton.styleFrom(padding: EdgeInsets.all(8)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -127,11 +135,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Savings Goals',
+                          'Financial Goals',
                           style: GoogleFonts.poppins(
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppTheme.getHeaderTextColor(context),
                             height: 1.2,
                           ),
                         ),
@@ -140,7 +148,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           'Track your progress and achieve your dreams',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.8),
+                            color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -151,24 +159,24 @@ class _GoalsScreenState extends State<GoalsScreen> {
               const SizedBox(height: 20),
 
               // Goals Stats
-              _buildGoalsStats(totalGoals, completedGoals, totalSaved, totalTarget),
+              _buildGoalsStats(context, totalGoals, completedGoals, totalSaved, totalTarget),
               const SizedBox(height: 16),
 
               // Goals Filter Toggle
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: AppTheme.getHeaderIconBackground(context),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildFilterToggle('All Goals', GoalFilter.all),
+                    _buildFilterToggle(context, 'All Goals', GoalFilter.all),
                     const SizedBox(width: 4),
-                    _buildFilterToggle('Active', GoalFilter.active),
+                    _buildFilterToggle(context, 'Active', GoalFilter.active),
                     const SizedBox(width: 4),
-                    _buildFilterToggle('Completed', GoalFilter.completed),
+                    _buildFilterToggle(context, 'Completed', GoalFilter.completed),
                   ],
                 ),
               ),
@@ -179,27 +187,35 @@ class _GoalsScreenState extends State<GoalsScreen> {
     );
   }
 
-  Widget _buildGoalsStats(int totalGoals, int completedGoals, double totalSaved, double totalTarget) {
+  Widget _buildGoalsStats(BuildContext context, int totalGoals, int completedGoals, double totalSaved, double totalTarget) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _buildStatItem(totalGoals.toString(), 'Goals', Icons.flag_rounded),
-        _buildStatItem(completedGoals.toString(), 'Completed', Icons.check_circle_rounded),
-        _buildStatItem('\$${totalSaved.toStringAsFixed(0)}', 'Saved', Icons.savings_rounded),
+        _buildStatItem(context, totalGoals.toString(), 'Goals', Icons.flag_rounded),
+        _buildStatItem(context, completedGoals.toString(), 'Completed', Icons.check_circle_rounded),
+        _buildStatItem(context, '\$${totalSaved.toStringAsFixed(0)}', 'Saved', Icons.savings_rounded),
       ],
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon) {
+  Widget _buildStatItem(BuildContext context, String value, String label, IconData icon) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: AppTheme.getHeaderIconBackground(context),
             shape: BoxShape.circle,
+            border: Border.all(
+              color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
-          child: Icon(icon, size: 20, color: Colors.white),
+          child: Icon(
+            icon, 
+            size: 20, 
+            color: AppTheme.getHeaderTextColor(context)
+          ),
         ),
         const SizedBox(height: 6),
         Text(
@@ -215,15 +231,17 @@ class _GoalsScreenState extends State<GoalsScreen> {
           label,
           style: GoogleFonts.poppins(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.8),
+            color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFilterToggle(String text, GoalFilter filter) {
+  Widget _buildFilterToggle(BuildContext context, String text, GoalFilter filter) {
     final isSelected = _selectedFilter == filter;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -234,7 +252,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected 
+              ? Colors.white.withValues(alpha: isDark ? 0.9 : 1.0)
+              : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
@@ -243,7 +263,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: isSelected ? AppTheme.primaryTeal : Colors.white.withOpacity(0.8),
+              color: isSelected 
+                ? (isDark ? AppTheme.darkPrimaryTeal : AppTheme.primaryTeal)
+                : AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
             ),
           ),
         ),
@@ -261,13 +283,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
             width: 140,
             height: 140,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: AppTheme.getSurfaceColor(context),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.flag_rounded,
               size: 60,
-              color: Colors.grey[400],
+              color: AppTheme.getSecondaryTextColor(context),
             ),
           ),
           const SizedBox(height: 24),
@@ -276,7 +298,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: Colors.grey[600],
+              color: AppTheme.getTextColor(context),
             ),
           ),
           const SizedBox(height: 12),
@@ -285,7 +307,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 16,
-              color: Colors.grey[500],
+              color: AppTheme.getSecondaryTextColor(context),
               height: 1.4,
             ),
           ),
@@ -314,7 +336,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: AppTheme.getSecondaryTextColor(context),
                       letterSpacing: 1,
                     ),
                   ),
@@ -349,12 +371,14 @@ class _GoalsScreenState extends State<GoalsScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _buildSummaryItem(goals.length.toString(), 'Total'),
+                  _buildSummaryItem(context, goals.length.toString(), 'Total'),
                   _buildSummaryItem(
+                    context,
                     goals.where((goal) => goal.currentAmount >= goal.targetAmount).length.toString(),
                     'Completed',
                   ),
                   _buildSummaryItem(
+                    context,
                     '\$${goals.fold(0.0, (sum, goal) => sum + goal.targetAmount).toStringAsFixed(0)}',
                     'Target',
                   ),
@@ -373,7 +397,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
+                color: AppTheme.getSecondaryTextColor(context),
                 letterSpacing: 0.5,
               ),
             ),
@@ -381,7 +405,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: AppTheme.primaryTeal.withOpacity(0.1),
+                color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -389,7 +413,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryTeal,
+                  color: AppTheme.getPrimaryColor(context),
                 ),
               ),
             ),
@@ -429,7 +453,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 });
                 _deleteGoal(goal, box);
               },
-              child: _buildGoalCard(goal, box),
+              child: _buildGoalCard(context, goal, box),
             ),
           );
         }).toList(),
@@ -437,7 +461,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     );
   }
 
-  Widget _buildGoalCard(Goal goal, Box<Goal> box) {
+  Widget _buildGoalCard(BuildContext context, Goal goal, Box<Goal> box) {
     final progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount).clamp(0.0, 1.0) : 0.0;
     final isCompleted = goal.currentAmount >= goal.targetAmount;
 
@@ -458,7 +482,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.darkGrey,
+                        color: AppTheme.getTextColor(context),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -481,13 +505,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         ),
                         if (goal.targetDate != null) ...[
                           const SizedBox(width: 8),
-                          Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey[500]),
+                          Icon(Icons.calendar_today_rounded, size: 12, color: AppTheme.getSecondaryTextColor(context)),
                           const SizedBox(width: 4),
                           Text(
                             '${goal.targetDate!.day}/${goal.targetDate!.month}/${goal.targetDate!.year}',
                             style: GoogleFonts.poppins(
                               fontSize: 10,
-                              color: Colors.grey[500],
+                              color: AppTheme.getSecondaryTextColor(context),
                             ),
                           ),
                         ],
@@ -498,7 +522,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ),
               // SINGLE Action Button - Just Edit
               IconButton(
-                icon: Icon(Icons.edit_rounded, color: AppTheme.primaryTeal, size: 20),
+                icon: Icon(Icons.edit_rounded, color: AppTheme.getPrimaryColor(context), size: 20),
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -524,7 +548,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     'Current',
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey[500],
+                      color: AppTheme.getSecondaryTextColor(context),
                     ),
                   ),
                   Text(
@@ -532,7 +556,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryTeal,
+                      color: AppTheme.getPrimaryColor(context),
                     ),
                   ),
                 ],
@@ -544,7 +568,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     'Target',
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey[500],
+                      color: AppTheme.getSecondaryTextColor(context),
                     ),
                   ),
                   Text(
@@ -552,7 +576,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                      color: AppTheme.getSecondaryTextColor(context),
                     ),
                   ),
                 ],
@@ -567,9 +591,11 @@ class _GoalsScreenState extends State<GoalsScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 12,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                  ? AppTheme.darkCard 
+                  : Colors.grey[200],
               valueColor: AlwaysStoppedAnimation<Color>(
-                isCompleted ? Colors.green : AppTheme.primaryTeal,
+                isCompleted ? Colors.green : AppTheme.getPrimaryColor(context),
               ),
             ),
           ),
@@ -583,7 +609,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 '${(progress * 100).toStringAsFixed(1)}% completed',
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: Colors.grey[500],
+                  color: AppTheme.getSecondaryTextColor(context),
                 ),
               ),
               Text(
@@ -591,7 +617,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isCompleted ? Colors.green : AppTheme.accentOrange,
+                  color: isCompleted ? Colors.green : AppTheme.getOriginalAccentColor(context),
                 ),
               ),
             ],
@@ -601,7 +627,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     );
   }
 
-  Widget _buildSummaryItem(String value, String label) {
+  Widget _buildSummaryItem(BuildContext context, String value, String label) {
     return Expanded(
       child: Column(
         children: [
@@ -610,7 +636,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppTheme.primaryTeal,
+              color: AppTheme.getPrimaryColor(context),
             ),
           ),
           const SizedBox(height: 4),
@@ -618,7 +644,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
             label,
             style: GoogleFonts.poppins(
               fontSize: 12,
-              color: Colors.grey[500],
+              color: AppTheme.getSecondaryTextColor(context),
             ),
           ),
         ],

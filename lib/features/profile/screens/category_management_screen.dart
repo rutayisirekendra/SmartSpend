@@ -3,8 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
-import 'package:smart_expense_tracker/common_widgets/primary_button.dart';
-import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
+import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
 import 'package:smart_expense_tracker/models/category_model.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,26 +17,42 @@ class CategoryManagementScreen extends StatefulWidget {
 class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   final _nameController = TextEditingController();
   IconData _selectedIcon = Icons.category_rounded;
+  Color _selectedColor = AppTheme.primaryTeal;
   final _formKey = GlobalKey<FormState>();
 
-  // Enhanced icons with more options using only your theme colors
+  // Example color palette for picking
+  final List<Color> _colorOptions = [
+    AppTheme.primaryTeal,
+    AppTheme.accentOrange,
+    Colors.blue,
+    Colors.purple,
+    Colors.orange,
+    Colors.red,
+    Colors.green,
+    Colors.brown,
+    Colors.pink,
+    Colors.indigo,
+    Colors.grey,
+  ];
+
   final List<Map<String, dynamic>> _iconOptions = [
-    {'icon': Icons.restaurant_rounded, 'name': 'Food', 'color': AppTheme.accentOrange},
-    {'icon': Icons.directions_car_rounded, 'name': 'Transport', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.shopping_bag_rounded, 'name': 'Shopping', 'color': AppTheme.accentOrange},
-    {'icon': Icons.movie_rounded, 'name': 'Entertainment', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.receipt_long_rounded, 'name': 'Bills', 'color': AppTheme.accentOrange},
-    {'icon': Icons.health_and_safety_rounded, 'name': 'Health', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.school_rounded, 'name': 'Education', 'color': AppTheme.accentOrange},
-    {'icon': Icons.home_rounded, 'name': 'Home', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.work_rounded, 'name': 'Work', 'color': AppTheme.accentOrange},
-    {'icon': Icons.flight_rounded, 'name': 'Travel', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.fitness_center_rounded, 'name': 'Fitness', 'color': AppTheme.accentOrange},
-    {'icon': Icons.celebration_rounded, 'name': 'Celebration', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.pets_rounded, 'name': 'Pets', 'color': AppTheme.accentOrange},
-    {'icon': Icons.local_gas_station_rounded, 'name': 'Gas', 'color': AppTheme.primaryTeal},
-    {'icon': Icons.local_cafe_rounded, 'name': 'Coffee', 'color': AppTheme.accentOrange},
-    {'icon': Icons.phone_android_rounded, 'name': 'Electronics', 'color': AppTheme.primaryTeal},
+    {'icon': Icons.restaurant_rounded, 'name': 'Food'},
+    {'icon': Icons.directions_car_rounded, 'name': 'Transport'},
+    {'icon': Icons.shopping_bag_rounded, 'name': 'Shopping'},
+    {'icon': Icons.movie_rounded, 'name': 'Entertainment'},
+    {'icon': Icons.receipt_long_rounded, 'name': 'Bills'},
+    {'icon': Icons.health_and_safety_rounded, 'name': 'Health'},
+    {'icon': Icons.school_rounded, 'name': 'Education'},
+    {'icon': Icons.home_rounded, 'name': 'Home'},
+    {'icon': Icons.work_rounded, 'name': 'Work'},
+    {'icon': Icons.flight_rounded, 'name': 'Travel'},
+    {'icon': Icons.fitness_center_rounded, 'name': 'Fitness'},
+    {'icon': Icons.celebration_rounded, 'name': 'Celebration'},
+    {'icon': Icons.pets_rounded, 'name': 'Pets'},
+    {'icon': Icons.local_gas_station_rounded, 'name': 'Gas'},
+    {'icon': Icons.local_cafe_rounded, 'name': 'Coffee'},
+    {'icon': Icons.phone_android_rounded, 'name': 'Electronics'},
+    {'icon': Icons.category_rounded, 'name': 'Other'},
   ];
 
   @override
@@ -50,14 +65,14 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     final box = Hive.box<Category>('categories');
     if (box.isEmpty) {
       final defaultCategories = [
-        Category(id: 'food', name: 'Food & Drink', icon: Icons.restaurant_rounded.codePoint.toString()),
-        Category(id: 'transport', name: 'Transport', icon: Icons.directions_car_rounded.codePoint.toString()),
-        Category(id: 'shopping', name: 'Shopping', icon: Icons.shopping_bag_rounded.codePoint.toString()),
-        Category(id: 'entertainment', name: 'Entertainment', icon: Icons.movie_rounded.codePoint.toString()),
-        Category(id: 'bills', name: 'Bills & Utilities', icon: Icons.receipt_long_rounded.codePoint.toString()),
-        Category(id: 'health', name: 'Health', icon: Icons.health_and_safety_rounded.codePoint.toString()),
-        Category(id: 'education', name: 'Education', icon: Icons.school_rounded.codePoint.toString()),
-        Category(id: 'other', name: 'Other', icon: Icons.more_horiz_rounded.codePoint.toString()),
+        Category(id: 'food', name: 'Food & Drink', icon: Icons.restaurant_rounded.codePoint.toString(), color: AppTheme.accentOrange.value),
+        Category(id: 'transport', name: 'Transport', icon: Icons.directions_car_rounded.codePoint.toString(), color: AppTheme.primaryTeal.value),
+        Category(id: 'shopping', name: 'Shopping', icon: Icons.shopping_bag_rounded.codePoint.toString(), color: AppTheme.accentOrange.value),
+        Category(id: 'entertainment', name: 'Entertainment', icon: Icons.movie_rounded.codePoint.toString(), color: AppTheme.primaryTeal.value),
+        Category(id: 'bills', name: 'Bills & Utilities', icon: Icons.receipt_long_rounded.codePoint.toString(), color: AppTheme.accentOrange.value),
+        Category(id: 'health', name: 'Health', icon: Icons.health_and_safety_rounded.codePoint.toString(), color: AppTheme.primaryTeal.value),
+        Category(id: 'education', name: 'Education', icon: Icons.school_rounded.codePoint.toString(), color: AppTheme.accentOrange.value),
+        Category(id: 'other', name: 'Other', icon: Icons.category_rounded.codePoint.toString(), color: AppTheme.primaryTeal.value),
       ];
       for (var cat in defaultCategories) {
         box.put(cat.id, cat);
@@ -72,11 +87,13 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         id: const Uuid().v4(),
         name: _nameController.text.trim(),
         icon: _selectedIcon.codePoint.toString(),
+        color: _selectedColor.value,
       );
       box.put(newCategory.id, newCategory);
       _nameController.clear();
       setState(() {
         _selectedIcon = Icons.category_rounded;
+        _selectedColor = AppTheme.primaryTeal;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -88,12 +105,511 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
               Text('Category "${newCategory.name}" added successfully! 🎉'),
             ],
           ),
-          backgroundColor: AppTheme.primaryTeal,
+          backgroundColor: AppTheme.getPrimaryTealColor(context),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
+  }
+
+  void _editCategory(Category category) async {
+    _nameController.text = category.name;
+    _selectedIcon = IconData(int.parse(category.icon), fontFamily: 'MaterialIcons');
+    _selectedColor = Color(category.color);
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 420),
+            decoration: BoxDecoration(
+              gradient: isDark
+                  ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppTheme.darkCard.withOpacity(0.95),
+                        AppTheme.darkSurface.withOpacity(0.98),
+                        AppTheme.darkBackground.withOpacity(0.95),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    )
+                  : LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.95),
+                        Colors.grey.shade50.withOpacity(0.98),
+                        Colors.white.withOpacity(0.92),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: isDark 
+                  ? AppTheme.darkPrimaryTeal.withOpacity(0.2)
+                  : AppTheme.primaryTeal.withOpacity(0.1),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.4)
+                      : AppTheme.primaryTeal.withOpacity(0.08),
+                  blurRadius: 25,
+                  offset: const Offset(0, 12),
+                ),
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.2)
+                      : Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: StatefulBuilder(
+              builder: (context, setDialogState) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(28),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Enhanced Header with glassmorphic background
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              _selectedColor.withOpacity(0.12),
+                              _selectedColor.withOpacity(0.06),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: _selectedColor.withOpacity(0.15),
+                            width: 1.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _selectedColor.withOpacity(0.1),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [_selectedColor, _selectedColor.withOpacity(0.8)],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _selectedColor.withOpacity(0.4),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                _selectedIcon,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Edit Category',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.getTextColor(context),
+                                      height: 1.2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Customize your expense category',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: AppTheme.getSecondaryTextColor(context),
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: AppTheme.getSecondaryTextColor(context).withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  _resetForm();
+                                },
+                                icon: Icon(
+                                  Icons.close_rounded,
+                                  color: AppTheme.getSecondaryTextColor(context),
+                                  size: 22,
+                                ),
+                                padding: const EdgeInsets.all(10),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Category Name Field
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark 
+                            ? AppTheme.darkSurface.withValues(alpha: 0.6)
+                            : Colors.white.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark 
+                              ? AppTheme.darkPrimaryTeal.withValues(alpha: 0.2)
+                              : AppTheme.primaryTeal.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.label_rounded,
+                                  size: 16,
+                                  color: _selectedColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'CATEGORY NAME',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.getSecondaryTextColor(context),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _nameController,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.getTextColor(context),
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Enter category name...',
+                                hintStyle: GoogleFonts.poppins(
+                                  color: AppTheme.getSecondaryTextColor(context).withValues(alpha: 0.5),
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Icon Selection
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark 
+                            ? AppTheme.darkSurface.withValues(alpha: 0.6)
+                            : Colors.white.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark 
+                              ? AppTheme.darkPrimaryTeal.withValues(alpha: 0.2)
+                              : AppTheme.primaryTeal.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  _selectedIcon,
+                                  size: 16,
+                                  color: _selectedColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'SELECT ICON',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.getSecondaryTextColor(context),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _iconOptions.map((iconData) {
+                                final isSelected = _selectedIcon == iconData['icon'];
+                                return GestureDetector(
+                                  onTap: () {
+                                    setDialogState(() {
+                                      _selectedIcon = iconData['icon'];
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      gradient: isSelected
+                                          ? LinearGradient(
+                                              colors: [_selectedColor, _selectedColor.withValues(alpha: 0.8)],
+                                            )
+                                          : null,
+                                      color: !isSelected
+                                          ? (isDark ? AppTheme.darkCard.withValues(alpha: 0.5) : Colors.grey.shade100)
+                                          : null,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: isSelected 
+                                          ? _selectedColor.withValues(alpha: 0.3)
+                                          : Colors.transparent,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      iconData['icon'],
+                                      color: isSelected 
+                                        ? Colors.white 
+                                        : AppTheme.getSecondaryTextColor(context),
+                                      size: 22,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Color Selection
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: isDark 
+                            ? AppTheme.darkSurface.withValues(alpha: 0.6)
+                            : Colors.white.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isDark 
+                              ? AppTheme.darkPrimaryTeal.withValues(alpha: 0.2)
+                              : AppTheme.primaryTeal.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: _selectedColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'PICK COLOR',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.getSecondaryTextColor(context),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: _colorOptions.map((color) {
+                                final isSelected = _selectedColor == color;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setDialogState(() {
+                                      _selectedColor = color;
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: color,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isSelected 
+                                          ? AppTheme.getTextColor(context) 
+                                          : Colors.transparent,
+                                        width: 3,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: color.withValues(alpha: 0.3),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: isSelected
+                                        ? Icon(
+                                            Icons.check_rounded, 
+                                            color: Colors.white, 
+                                            size: 20,
+                                          )
+                                        : null,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Action Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: AppTheme.getSecondaryTextColor(context).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: AppTheme.getSecondaryTextColor(context).withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  _nameController.clear();
+                                  setState(() {
+                                    _selectedIcon = Icons.category_rounded;
+                                    _selectedColor = AppTheme.primaryTeal;
+                                  });
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppTheme.getSecondaryTextColor(context),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                child: Text(
+                                  'CANCEL',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              decoration: AppTheme.getGradientButtonDecoration(),
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (_nameController.text.isNotEmpty) {
+                                    final updatedCategory = category.copyWith(
+                                      name: _nameController.text,
+                                      icon: _selectedIcon.codePoint.toString(),
+                                      color: _selectedColor.value,
+                                    );
+
+                                    final categoriesBox = Hive.box<Category>('categories');
+                                    await categoriesBox.put(category.key, updatedCategory);
+
+                                    Navigator.of(context).pop();
+                                    _nameController.clear();
+                                    setState(() {
+                                      _selectedIcon = Icons.category_rounded;
+                                      _selectedColor = AppTheme.primaryTeal;
+                                    });
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Category updated successfully!'),
+                                        backgroundColor: AppTheme.getSuccessColor(context),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: AppTheme.getGradientButtonStyle(),
+                                child: Text(
+                                  'UPDATE',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _deleteCategory(String id) {
@@ -102,12 +618,31 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Category', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        content: Text('Are you sure you want to delete "${category?.name}"? This will remove it from all budgets.'),
+        backgroundColor: AppTheme.getCardColor(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Delete Category',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: AppTheme.getTextColor(context),
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${category?.name}"? This will remove it from all budgets.',
+          style: GoogleFonts.poppins(
+            color: AppTheme.getTextColor(context),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('CANCEL', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+            child: Text(
+              'CANCEL',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getSecondaryTextColor(context),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -128,7 +663,13 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                 ),
               );
             },
-            child: Text('DELETE', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.red)),
+            child: Text(
+              'DELETE',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+              ),
+            ),
           ),
         ],
       ),
@@ -137,29 +678,30 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.offWhite,
-      body: Column(
-        children: [
-          // Enhanced Header Section
-          _buildHeaderSection(),
-          Expanded(
-            child: ValueListenableBuilder<Box<Category>>(
-              valueListenable: Hive.box<Category>('categories').listenable(),
-              builder: (context, box, _) {
-                final categories = box.values.toList();
-                return ListView(
-                  padding: const EdgeInsets.all(20),
-                  children: [
-                    _buildAddCategorySection(),
-                    const SizedBox(height: 24),
-                    _buildCategoriesList(categories),
-                  ],
-                );
-              },
+    return ThemedBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            _buildHeaderSection(),
+            Expanded(
+              child: ValueListenableBuilder<Box<Category>>(
+                valueListenable: Hive.box<Category>('categories').listenable(),
+                builder: (context, box, _) {
+                  final categories = box.values.toList();
+                  return ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      _buildAddCategorySection(),
+                      const SizedBox(height: 24),
+                      _buildCategoriesList(categories),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -173,41 +715,28 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         left: 20,
         right: 20,
       ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.primaryTeal,
-            AppTheme.primaryTeal.withOpacity(0.9),
-          ],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
-      ),
+      decoration: AppTheme.getGlassmorphicHeaderDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Back Button and Title Row
           Row(
             children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MainScreen()),
-                        (route) => false,
-                  );
-                },
-                icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  padding: EdgeInsets.all(8),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.getHeaderIconBackground(context),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.arrow_back_rounded, 
+                    color: AppTheme.getHeaderTextColor(context)
+                  ),
+                  style: IconButton.styleFrom(padding: EdgeInsets.all(8)),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,16 +746,16 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppTheme.getHeaderTextColor(context),
                         height: 1.2,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Organize your expenses with custom categories',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -234,15 +763,15 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
               ),
             ],
           ),
-          SizedBox(height: 20),
-
-          // Quick Stats
+          const SizedBox(height: 20),
+          
+          // Category Stats
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('Categories', Icons.category_rounded),
-              _buildStatItem('Custom', Icons.edit_rounded),
-              _buildStatItem('Active', Icons.check_circle_rounded),
+              _buildStatItem(context, 'Categories', Icons.category_rounded),
+              _buildStatItem(context, 'Custom', Icons.edit_rounded),
+              _buildStatItem(context, 'Active', Icons.check_circle_rounded),
             ],
           ),
         ],
@@ -250,23 +779,31 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, IconData icon) {
+  Widget _buildStatItem(BuildContext context, String label, IconData icon) {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: AppTheme.getHeaderIconBackground(context),
             shape: BoxShape.circle,
+            border: Border.all(
+              color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
-          child: Icon(icon, size: 20, color: Colors.white),
+          child: Icon(
+            icon, 
+            size: 20, 
+            color: AppTheme.getHeaderTextColor(context)
+          ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Text(
           label,
           style: GoogleFonts.poppins(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.9),
+            color: AppTheme.getHeaderTextColor(context).withValues(alpha: 0.9),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -275,8 +812,10 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   }
 
   Widget _buildAddCategorySection() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return ModernCard(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(24),
       child: Form(
         key: _formKey,
         child: Column(
@@ -287,200 +826,222 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                 Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryTeal.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        _selectedColor.withOpacity(0.8),
+                        _selectedColor.withOpacity(0.6),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.add_circle_rounded,
-                    color: AppTheme.primaryTeal,
+                    color: Colors.white,
                     size: 24,
                   ),
                 ),
                 SizedBox(width: 12),
-                Text(
-                  'Create New Category',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryTeal,
+                Expanded(
+                  child: Text(
+                    'Create New Category',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.getTextColor(context),
+                    ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-
-            // Category Name Field
+            SizedBox(height: 24),
+            Text(
+              'Category Name',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getTextColor(context),
+              ),
+            ),
+            SizedBox(height: 8),
             TextFormField(
               controller: _nameController,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: AppTheme.getTextColor(context),
+              ),
               decoration: InputDecoration(
-                labelText: 'Category Name ✏️',
-                labelStyle: GoogleFonts.poppins(color: Colors.grey[600]),
+                hintText: 'e.g., Food, Transport, Shopping',
+                hintStyle: GoogleFonts.poppins(
+                  color: AppTheme.getSecondaryTextColor(context),
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide: BorderSide(
+                    color: isDark ? AppTheme.darkCard : Colors.grey[300]!,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: isDark ? AppTheme.darkCard : Colors.grey[300]!,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.primaryTeal),
+                  borderSide: BorderSide(color: _selectedColor, width: 2),
                 ),
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: isDark ? AppTheme.darkSurface : Colors.grey[50],
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                prefixIcon: Icon(
+                  Icons.edit_rounded,
+                  color: AppTheme.getSecondaryTextColor(context),
+                ),
               ),
-              style: GoogleFonts.poppins(fontSize: 16),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a category name 📝';
+                  return 'Please enter a category name';
                 }
                 return null;
               },
             ),
-            SizedBox(height: 20),
-
-            // Icon Selection
-            _buildIconSelectionSection(),
-            SizedBox(height: 20),
-
-            // Add Category Button
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppTheme.accentOrange,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.accentOrange.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+            SizedBox(height: 24),
+            Text(
+              'Select Icon',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getTextColor(context),
               ),
-              child: ElevatedButton(
-                onPressed: _addCategory,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+            ),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isDark ? AppTheme.darkSurface : Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? AppTheme.darkCard : Colors.grey[300]!,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_rounded, size: 20, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text(
-                      'CREATE CATEGORY 🚀',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+              ),
+              child: Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: _iconOptions.map((iconData) {
+                  final isSelected = _selectedIcon == iconData['icon'];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedIcon = iconData['icon'];
+                      });
+                    },
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? LinearGradient(
+                                colors: [
+                                  _selectedColor.withOpacity(0.8),
+                                  _selectedColor.withOpacity(0.6),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        color: isSelected ? null : (isDark ? AppTheme.darkCard : Colors.grey[200]),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        iconData['icon'],
+                        color: isSelected ? Colors.white : AppTheme.getSecondaryTextColor(context),
+                        size: 24,
                       ),
                     ),
-                  ],
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(height: 24),
+            Text(
+              'Pick a Color',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getTextColor(context),
+              ),
+            ),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark ? AppTheme.darkSurface : Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDark ? AppTheme.darkCard : Colors.grey[300]!,
                 ),
+              ),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: _colorOptions.map((color) {
+                  final isSelected = _selectedColor == color;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedColor = color;
+                      });
+                    },
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? AppTheme.getTextColor(context) : Colors.transparent,
+                          width: 3,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: isSelected
+                          ? Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                          : null,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(height: 24),
+            Container(
+              height: 56,
+              decoration: AppTheme.getGradientButtonDecoration(),
+              child: ElevatedButton.icon(
+                onPressed: _addCategory,
+                icon: Icon(Icons.add_rounded, size: 20, color: Colors.white),
+                label: Text(
+                  'CREATE CATEGORY',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                style: AppTheme.getGradientButtonStyle(),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildIconSelectionSection() {
-    final currentIconData = _iconOptions.firstWhere(
-          (icon) => icon['icon'] == _selectedIcon,
-      orElse: () => {'icon': Icons.category_rounded, 'name': 'Category', 'color': AppTheme.primaryTeal},
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppTheme.accentOrange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.emoji_objects_rounded,
-                size: 16,
-                color: AppTheme.accentOrange,
-              ),
-            ),
-            SizedBox(width: 8),
-            Text(
-              'SELECT ICON',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        GestureDetector(
-          onTap: _showIconPicker,
-          child: Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: currentIconData['color'].withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: currentIconData['color']),
-                  ),
-                  child: Icon(_selectedIcon, color: currentIconData['color'], size: 24),
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Current Icon',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        currentIconData['name'],
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.darkGrey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryTeal.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.arrow_drop_down_rounded, color: AppTheme.primaryTeal),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -495,7 +1056,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[600],
+                color: AppTheme.getSecondaryTextColor(context),
                 letterSpacing: 0.5,
               ),
             ),
@@ -518,27 +1079,45 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
           ],
         ),
         SizedBox(height: 16),
-
         if (categories.isEmpty)
           _buildEmptyState()
         else
-          ...categories.map((category) => Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: ModernCard(
-              padding: EdgeInsets.all(16),
+          ...categories.map((category) => Container(
+            margin: const EdgeInsets.only(bottom: 12.0),
+            decoration: BoxDecoration(
+              color: AppTheme.getCardColor(context),
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.getTextColor(context).withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
+                  // Category Icon with gradient background (like expense items)
                   Container(
-                    padding: EdgeInsets.all(10),
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryTeal.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.primaryTeal),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(category.color).withOpacity(0.8),
+                          Color(category.color).withOpacity(0.6),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Icon(
                       IconData(int.parse(category.icon), fontFamily: 'MaterialIcons'),
-                      color: AppTheme.primaryTeal,
-                      size: 20,
+                      color: Colors.white,
+                      size: 24,
                     ),
                   ),
                   SizedBox(width: 16),
@@ -551,30 +1130,60 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.darkGrey,
+                            color: AppTheme.getTextColor(context),
                           ),
                         ),
                         SizedBox(height: 4),
-                        Text(
-                          'Expense Category',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey[500],
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Color(category.color).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Expense Category',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: Color(category.color),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: Container(
-                      padding: EdgeInsets.all(6),
+                  // Edit button
+                  GestureDetector(
+                    onTap: () => _editCategory(category),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryTeal.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        color: AppTheme.primaryTeal,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  // Delete button
+                  GestureDetector(
+                    onTap: () => _deleteCategory(category.id),
+                    child: Container(
+                      padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.red.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(Icons.delete_rounded, color: Colors.red, size: 20),
+                      child: Icon(
+                        Icons.delete_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
                     ),
-                    onPressed: () => _deleteCategory(category.id),
                   ),
                 ],
               ),
@@ -585,6 +1194,8 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   }
 
   Widget _buildEmptyState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return ModernCard(
       padding: EdgeInsets.all(32),
       child: Column(
@@ -593,26 +1204,30 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: isDark ? AppTheme.darkCard : Colors.grey[100],
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.category_outlined, size: 40, color: Colors.grey[400]),
+            child: Icon(
+              Icons.category_outlined,
+              size: 40,
+              color: AppTheme.getSecondaryTextColor(context),
+            ),
           ),
           SizedBox(height: 20),
           Text(
-            'No Categories Yet 📭',
+            'No Categories Yet',
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[500],
+              color: AppTheme.getTextColor(context),
             ),
           ),
           SizedBox(height: 8),
           Text(
-            'Create your first category to start\norganizing your expenses effectively! ✨',
+            'Create your first category to start\norganizing your expenses effectively!',
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
-              color: Colors.grey[400],
+              color: AppTheme.getSecondaryTextColor(context),
             ),
           ),
         ],
@@ -620,125 +1235,208 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     );
   }
 
-  void _showIconPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+  // Helper methods for enhanced edit dialog
+  void _resetForm() {
+    _nameController.clear();
+    setState(() {
+      _selectedIcon = Icons.category_rounded;
+      _selectedColor = AppTheme.primaryTeal;
+    });
+  }
+
+  Widget _buildGlassmorphicField({
+    required BuildContext context,
+    required bool isDark,
+    required StateSetter setDialogState,
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: isDark 
+          ? AppTheme.darkSurface.withOpacity(0.25)
+          : Colors.white.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark 
+            ? Colors.white.withOpacity(0.08)
+            : Colors.grey.withOpacity(0.15),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
-        ),
-        child: Column(
-          children: [
-            // Header
-            Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: _selectedColor,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Choose an Icon 🎨',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryTeal,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close_rounded, color: Colors.grey[500]),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.0,
-                  ),
-                  itemCount: _iconOptions.length,
-                  itemBuilder: (context, index) {
-                    final iconData = _iconOptions[index];
-                    final isSelected = _selectedIcon == iconData['icon'];
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedIcon = iconData['icon'];
-                        });
-                        Navigator.of(context).pop();
-                      },
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
-                          color: isSelected ? iconData['color'].withOpacity(0.1) : Colors.grey[50],
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? iconData['color'] : Colors.grey[300]!,
-                            width: isSelected ? 2 : 1,
-                          ),
-                          boxShadow: isSelected ? [
-                            BoxShadow(
-                              color: iconData['color'].withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            )
-                          ] : null,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              iconData['icon'],
-                              color: isSelected ? iconData['color'] : Colors.grey[600],
-                              size: 24,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              iconData['name'],
-                              style: GoogleFonts.poppins(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: isSelected ? iconData['color'] : Colors.grey[600],
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.getSecondaryTextColor(context),
+                  letterSpacing: 0.8,
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          child,
+        ],
       ),
     );
+  }
+
+  Widget _buildIconGrid(StateSetter setDialogState, bool isDark) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: _iconOptions.map((iconData) {
+        final isSelected = _selectedIcon == iconData['icon'];
+        return GestureDetector(
+          onTap: () {
+            setDialogState(() {
+              _selectedIcon = iconData['icon'];
+            });
+          },
+          child: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: isSelected
+                  ? LinearGradient(
+                      colors: [_selectedColor, _selectedColor.withOpacity(0.8)],
+                    )
+                  : null,
+              color: !isSelected
+                  ? (isDark ? AppTheme.darkCard.withOpacity(0.3) : Colors.grey.shade50)
+                  : null,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isSelected 
+                  ? _selectedColor.withOpacity(0.4)
+                  : Colors.transparent,
+                width: 2,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: _selectedColor.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Icon(
+              iconData['icon'],
+              color: isSelected 
+                ? Colors.white 
+                : AppTheme.getSecondaryTextColor(context),
+              size: 24,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildColorGrid(StateSetter setDialogState) {
+    return Wrap(
+      spacing: 14,
+      runSpacing: 14,
+      children: _colorOptions.map((color) {
+        final isSelected = _selectedColor == color;
+        return GestureDetector(
+          onTap: () {
+            setDialogState(() {
+              _selectedColor = color;
+            });
+          },
+          child: Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected 
+                  ? AppTheme.getTextColor(context) 
+                  : Colors.transparent,
+                width: 3.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.35),
+                  blurRadius: isSelected ? 15 : 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: isSelected
+                ? Icon(
+                    Icons.check_rounded, 
+                    color: Colors.white, 
+                    size: 24,
+                  )
+                : null,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  void _updateCategory(Category category, StateSetter setDialogState) async {
+    if (_nameController.text.isNotEmpty) {
+      final categoryColor = _selectedColor.value;
+      final updatedCategory = category.copyWith(
+        name: _nameController.text,
+        icon: _selectedIcon.codePoint.toString(),
+        color: categoryColor,
+      );
+
+      final categoriesBox = Hive.box<Category>('categories');
+      await categoriesBox.put(category.key, updatedCategory);
+
+      Navigator.of(context).pop();
+      _resetForm();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Category "${_nameController.text}" updated successfully!',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppTheme.getSuccessColor(context),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+    }
   }
 }

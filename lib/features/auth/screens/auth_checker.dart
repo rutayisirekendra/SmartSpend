@@ -20,20 +20,83 @@ class AuthChecker extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
-        // If the connection is still waiting, show a loading indicator
+        // Show loading screen while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Loading SmartSpend...',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           );
         }
 
-        // If a user is logged in (snapshot has data)
-        if (snapshot.hasData) {
+        // Handle connection errors
+        if (snapshot.hasError) {
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.red,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Authentication Error',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.headlineSmall?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please restart the app or check your connection',
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Try to refresh the auth state
+                      authService.reloadUser();
+                    },
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // If a user is logged in (snapshot has data and user is not null)
+        if (snapshot.hasData && snapshot.data != null) {
           // Show the MainScreen which contains the bottom navigation
           return const MainScreen();
         }
 
-        // If no user is logged in
+        // If no user is logged in or user is null
         return const AuthPage(); // Show the Login/SignUp page flipper
       },
     );

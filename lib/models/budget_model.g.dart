@@ -23,13 +23,14 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       month: fields[3] as DateTime,
       budgetType: fields[4] as BudgetType,
       startDate: fields[5] as DateTime,
+      userId: fields[6] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Budget obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       ..writeByte(4)
       ..write(obj.budgetType)
       ..writeByte(5)
-      ..write(obj.startDate);
+      ..write(obj.startDate)
+      ..writeByte(6)
+      ..write(obj.userId);
   }
 
   @override

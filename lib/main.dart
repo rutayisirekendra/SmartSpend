@@ -1,280 +1,3 @@
-// // // import 'package:flutter/material.dart';
-// // // import 'package:firebase_core/firebase_core.dart';
-// // // import 'package:hive_flutter/hive_flutter.dart';
-// // // import 'package:provider/provider.dart';
-// // // import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-// // // import 'package:smart_expense_tracker/features/auth/screens/auth_checker.dart';
-// // // import 'package:smart_expense_tracker/models/expense_model.dart';
-// // // import 'package:smart_expense_tracker/models/goal_model.dart';
-// // // import 'package:smart_expense_tracker/models/note_model.dart';
-// // // import 'package:smart_expense_tracker/models/user_model.dart';
-// // // import 'package:smart_expense_tracker/models/category_model.dart';
-// // // import 'package:smart_expense_tracker/models/budget_model.dart';
-// // // import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
-// // // import 'firebase_options.dart';
-// // //
-// // // Future<void> main() async {
-// // //   WidgetsFlutterBinding.ensureInitialized();
-// // //   await Firebase.initializeApp(
-// // //     options: DefaultFirebaseOptions.currentPlatform,
-// // //   );
-// // //
-// // //   await Hive.initFlutter();
-// // //
-// // //   // Register All Hive Adapters
-// // //   Hive.registerAdapter(ExpenseAdapter());
-// // //   Hive.registerAdapter(GoalAdapter());
-// // //   Hive.registerAdapter(NoteAdapter());
-// // //   Hive.registerAdapter(UserModelAdapter());
-// // //   Hive.registerAdapter(CategoryAdapter());
-// // //   Hive.registerAdapter(BudgetAdapter());
-// // //   Hive.registerAdapter(BudgetTypeAdapter());
-// // //
-// // //   // Clear existing budget data to fix migration issues
-// // //   try {
-// // //     await Hive.deleteBoxFromDisk('budgets');
-// // //     print('✅ Cleared old budget data for migration');
-// // //   } catch (e) {
-// // //     print('ℹ️ No existing budget data to clear: $e');
-// // //   }
-// // //
-// // //   // Open Hive boxes
-// // //   await Hive.openBox<Expense>('expenses');
-// // //   await Hive.openBox<Goal>('goals');
-// // //   await Hive.openBox<Note>('notes');
-// // //   await Hive.openBox<UserModel>('user');
-// // //   await Hive.openBox<Category>('categories');
-// // //   await Hive.openBox<Budget>('budgets');
-// // //
-// // //   runApp(const MyApp());
-// // // }
-// // //
-// // // class MyApp extends StatelessWidget {
-// // //   const MyApp({super.key});
-// // //
-// // //   @override
-// // //   Widget build(BuildContext context) {
-// // //     return Provider<AuthService>(
-// // //       create: (_) => AuthService(),
-// // //       child: MaterialApp(
-// // //         title: 'Smart Expense Tracker',
-// // //         theme: AppTheme.lightTheme,
-// // //         debugShowCheckedModeBanner: false,
-// // //         home: const AuthChecker(),
-// // //       ),
-// // //     );
-// // //   }
-// // // }
-// //
-// // // import 'package:flutter/material.dart';
-// // // import 'package:firebase_core/firebase_core.dart';
-// // // import 'package:hive_flutter/hive_flutter.dart';
-// // // import 'package:provider/provider.dart';
-// // // import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-// // // import 'package:smart_expense_tracker/features/auth/screens/auth_checker.dart';
-// // // import 'package:smart_expense_tracker/models/expense_model.dart';
-// // // import 'package:smart_expense_tracker/models/goal_model.dart';
-// // // import 'package:smart_expense_tracker/models/note_model.dart';
-// // // import 'package:smart_expense_tracker/models/user_model.dart';
-// // // import 'package:smart_expense_tracker/models/category_model.dart';
-// // // import 'package:smart_expense_tracker/models/budget_model.dart';
-// // // import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
-// // // import 'firebase_options.dart';
-// // //
-// // // Future<void> main() async {
-// // //   WidgetsFlutterBinding.ensureInitialized();
-// // //   await Firebase.initializeApp(
-// // //     options: DefaultFirebaseOptions.currentPlatform,
-// // //   );
-// // //
-// // //   await Hive.initFlutter();
-// // //
-// // //   // Register All Hive Adapters
-// // //   Hive.registerAdapter(ExpenseAdapter());
-// // //   Hive.registerAdapter(GoalAdapter());
-// // //   Hive.registerAdapter(NoteAdapter());
-// // //   Hive.registerAdapter(UserModelAdapter());
-// // //   Hive.registerAdapter(CategoryAdapter());
-// // //   Hive.registerAdapter(BudgetAdapter());
-// // //   Hive.registerAdapter(BudgetTypeAdapter());
-// // //
-// // //   // REMOVED: Don't delete budgets box every time!
-// // //   // This was causing your data loss
-// // //
-// // //   // Open Hive boxes
-// // //   await Hive.openBox<Expense>('expenses');
-// // //   await Hive.openBox<Goal>('goals');
-// // //   await Hive.openBox<Note>('notes');
-// // //   await Hive.openBox<UserModel>('user');
-// // //   await Hive.openBox<Category>('categories');
-// // //   await Hive.openBox<Budget>('budgets');
-// // //
-// // //   runApp(const MyApp());
-// // // }
-// // //
-// // // class MyApp extends StatelessWidget {
-// // //   const MyApp({super.key});
-// // //
-// // //   @override
-// // //   Widget build(BuildContext context) {
-// // //     return Provider<AuthService>(
-// // //       create: (_) => AuthService(),
-// // //       child: MaterialApp(
-// // //         title: 'Smart Expense Tracker',
-// // //         theme: AppTheme.lightTheme,
-// // //         debugShowCheckedModeBanner: false,
-// // //         home: const AuthChecker(),
-// // //       ),
-// // //     );
-// // //   }
-// // // }
-// //
-// // // notes issue
-// // import 'package:flutter/material.dart';
-// // import 'package:firebase_core/firebase_core.dart';
-// // import 'package:hive_flutter/hive_flutter.dart';
-// // import 'package:provider/provider.dart';
-// // import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-// // import 'package:smart_expense_tracker/features/auth/screens/auth_checker.dart';
-// // import 'package:smart_expense_tracker/models/expense_model.dart';
-// // import 'package:smart_expense_tracker/models/goal_model.dart';
-// // import 'package:smart_expense_tracker/models/note_model.dart';
-// // import 'package:smart_expense_tracker/models/user_model.dart';
-// // import 'package:smart_expense_tracker/models/category_model.dart';
-// // import 'package:smart_expense_tracker/models/budget_model.dart';
-// // import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
-// // import 'firebase_options.dart';
-// //
-// // Future<void> main() async {
-// //   WidgetsFlutterBinding.ensureInitialized();
-// //   await Firebase.initializeApp(
-// //     options: DefaultFirebaseOptions.currentPlatform,
-// //   );
-// //
-// //   await Hive.initFlutter();
-// //
-// //   // Register All Hive Adapters
-// //   Hive.registerAdapter(ExpenseAdapter());
-// //   Hive.registerAdapter(GoalAdapter());
-// //   Hive.registerAdapter(NoteAdapter());
-// //   Hive.registerAdapter(UserModelAdapter());
-// //   Hive.registerAdapter(CategoryAdapter());
-// //   Hive.registerAdapter(BudgetAdapter());
-// //   Hive.registerAdapter(BudgetTypeAdapter());
-// //
-// //   // FIX: Only delete and recreate the notes box to fix the schema issue
-// //   try {
-// //     await Hive.deleteBoxFromDisk('notes');
-// //     print('Deleted old notes box to fix schema migration');
-// //   } catch (e) {
-// //     print('No existing notes box to delete: $e');
-// //   }
-// //
-// //   // Open Hive boxes
-// //   await Hive.openBox<Expense>('expenses');
-// //   await Hive.openBox<Goal>('goals');
-// //   await Hive.openBox<Note>('notes'); // This will create a fresh box with new schema
-// //   await Hive.openBox<UserModel>('user');
-// //   await Hive.openBox<Category>('categories');
-// //   await Hive.openBox<Budget>('budgets');
-// //
-// //   runApp(const MyApp());
-// // }
-// //
-// // class MyApp extends StatelessWidget {
-// //   const MyApp({super.key});
-// //
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Provider<AuthService>(
-// //       create: (_) => AuthService(),
-// //       child: MaterialApp(
-// //         title: 'Smart Expense Tracker',
-// //         theme: AppTheme.lightTheme,
-// //         debugShowCheckedModeBanner: false,
-// //         home: const AuthChecker(),
-// //       ),
-// //     );
-// //   }
-// // }
-//
-// // notes
-// // import 'package:flutter/material.dart';
-// // import 'package:firebase_core/firebase_core.dart';
-// // import 'package:hive_flutter/hive_flutter.dart';
-// // import 'package:provider/provider.dart';
-// // import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-// // import 'package:smart_expense_tracker/features/auth/screens/auth_checker.dart';
-// // import 'package:smart_expense_tracker/models/expense_model.dart';
-// // import 'package:smart_expense_tracker/models/goal_model.dart';
-// // import 'package:smart_expense_tracker/models/note_model.dart';
-// // import 'package:smart_expense_tracker/models/user_model.dart';
-// // import 'package:smart_expense_tracker/models/category_model.dart';
-// // import 'package:smart_expense_tracker/models/budget_model.dart';
-// // import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
-// // import 'firebase_options.dart';
-// //
-// // Future<void> main() async {
-// //   WidgetsFlutterBinding.ensureInitialized();
-// //   await Firebase.initializeApp(
-// //     options: DefaultFirebaseOptions.currentPlatform,
-// //   );
-// //
-// //   await Hive.initFlutter();
-// //
-// //   // Register All Hive Adapters
-// //   Hive.registerAdapter(ExpenseAdapter());
-// //   Hive.registerAdapter(GoalAdapter());
-// //   Hive.registerAdapter(NoteAdapter());
-// //   Hive.registerAdapter(UserModelAdapter());
-// //   Hive.registerAdapter(CategoryAdapter());
-// //   Hive.registerAdapter(BudgetAdapter());
-// //   Hive.registerAdapter(BudgetTypeAdapter());
-// //
-// //   // FIXED: Remove the automatic deletion - only open boxes normally
-// //   await _openBoxesSafely();
-// //
-// //   runApp(const MyApp());
-// // }
-// //
-// // Future<void> _openBoxesSafely() async {
-// //   // Open all boxes normally without deleting anything
-// //   await Hive.openBox<Expense>('expenses');
-// //   await Hive.openBox<Goal>('goals');
-// //
-// //   // Try to open notes box normally first
-// //   try {
-// //     await Hive.openBox<Note>('notes');
-// //     print('Notes box opened successfully - your notes are safe!');
-// //   } catch (e) {
-// //     // Only delete if there's actually an error opening the box
-// //     print('Error opening notes box: $e. Recreating...');
-// //     await Hive.deleteBoxFromDisk('notes');
-// //     await Hive.openBox<Note>('notes');
-// //   }
-// //
-// //   await Hive.openBox<UserModel>('user');
-// //   await Hive.openBox<Category>('categories');
-// //   await Hive.openBox<Budget>('budgets');
-// // }
-// //
-// // class MyApp extends StatelessWidget {
-// //   const MyApp({super.key});
-// //
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Provider<AuthService>(
-// //       create: (_) => AuthService(),
-// //       child: MaterialApp(
-// //         title: 'Smart Expense Tracker',
-// //         theme: AppTheme.lightTheme,
-// //         debugShowCheckedModeBanner: false,
-// //         home: const AuthChecker(),
-// //       ),
-// //     );
-// //   }
-// //}
-//
 // import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:hive_flutter/hive_flutter.dart';
@@ -307,75 +30,55 @@
 //   Hive.registerAdapter(BudgetAdapter());
 //   Hive.registerAdapter(BudgetTypeAdapter());
 //
-//   // FIXED: Delete goals box to fix schema migration, then open all boxes
-//   await _openBoxesWithMigration();
+//   // Open boxes safely without deleting data
+//   await _openBoxesSafely();
 //
 //   runApp(const MyApp());
 // }
 //
-// Future<void> _openBoxesWithMigration() async {
-//   print('Starting Hive box migration...');
-//
-//   // Delete goals box to fix schema migration issue
-//   try {
-//     await Hive.deleteBoxFromDisk('goals');
-//     print('✅ Deleted goals box to fix schema migration');
-//   } catch (e) {
-//     print('ℹ️ No goals box to delete: $e');
-//   }
-//
-//   // Delete notes box if it has schema issues
-//   try {
-//     await Hive.deleteBoxFromDisk('notes');
-//     print('✅ Deleted notes box to fix schema migration');
-//   } catch (e) {
-//     print('ℹ️ No notes box to delete: $e');
-//   }
-//
-//   // Now open all boxes fresh
+// Future<void> _openBoxesSafely() async {
+//   // Open all boxes normally - only delete if there's a schema error
 //   try {
 //     await Hive.openBox<Expense>('expenses');
-//     print('✅ Expenses box opened successfully');
 //   } catch (e) {
-//     print('❌ Error opening expenses box: $e');
+//     await Hive.deleteBoxFromDisk('expenses');
+//     await Hive.openBox<Expense>('expenses');
 //   }
 //
 //   try {
 //     await Hive.openBox<Goal>('goals');
-//     print('✅ Goals box opened successfully with new schema');
 //   } catch (e) {
-//     print('❌ Error opening goals box: $e');
+//     await Hive.deleteBoxFromDisk('goals');
+//     await Hive.openBox<Goal>('goals');
 //   }
 //
 //   try {
 //     await Hive.openBox<Note>('notes');
-//     print('✅ Notes box opened successfully with new schema');
 //   } catch (e) {
-//     print('❌ Error opening notes box: $e');
+//     await Hive.deleteBoxFromDisk('notes');
+//     await Hive.openBox<Note>('notes');
 //   }
 //
 //   try {
 //     await Hive.openBox<UserModel>('user');
-//     print('✅ User box opened successfully');
 //   } catch (e) {
-//     print('❌ Error opening user box: $e');
+//     await Hive.deleteBoxFromDisk('user');
+//     await Hive.openBox<UserModel>('user');
 //   }
 //
 //   try {
 //     await Hive.openBox<Category>('categories');
-//     print('✅ Categories box opened successfully');
 //   } catch (e) {
-//     print('❌ Error opening categories box: $e');
+//     await Hive.deleteBoxFromDisk('categories');
+//     await Hive.openBox<Category>('categories');
 //   }
 //
 //   try {
 //     await Hive.openBox<Budget>('budgets');
-//     print('✅ Budgets box opened successfully');
 //   } catch (e) {
-//     print('❌ Error opening budgets box: $e');
+//     await Hive.deleteBoxFromDisk('budgets');
+//     await Hive.openBox<Budget>('budgets');
 //   }
-//
-//   print('Hive box migration completed!');
 // }
 //
 // class MyApp extends StatelessWidget {
@@ -394,27 +97,77 @@
 //     );
 //   }
 // }
+
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:firebase_core/firebase_core.dart';
+// REMOVED: Firebase App Check causes DNS issues in Android emulator
+// import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
+import 'package:smart_expense_tracker/app/theme/theme_provider.dart';
 import 'package:smart_expense_tracker/features/auth/screens/auth_checker.dart';
+import 'package:smart_expense_tracker/features/onboarding/screens/onboarding_screen.dart';
+import 'package:smart_expense_tracker/features/splash/splash_screen.dart';
+import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/models/expense_model.dart';
 import 'package:smart_expense_tracker/models/goal_model.dart';
 import 'package:smart_expense_tracker/models/note_model.dart';
 import 'package:smart_expense_tracker/models/user_model.dart';
 import 'package:smart_expense_tracker/models/category_model.dart';
 import 'package:smart_expense_tracker/models/budget_model.dart';
+import 'package:smart_expense_tracker/models/notification_model.dart';
 import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  try {
+    if (kDebugMode) {
+      print('🚀 Initializing Smart Expense Tracker...');
+      print('📱 Platform: ${Platform.operatingSystem}');
+    }
+    
+    // Initialize Firebase with proper error handling
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    
+    if (kDebugMode) {
+      print('✅ Firebase initialized successfully');
+      print('🔧 Running in DEBUG mode - App Check is DISABLED');
+      print('📝 This prevents DNS errors in Android emulator');
+      print('✅ Firebase Authentication is ready');
+    }
 
+    // NOTE: Firebase App Check is completely disabled to fix emulator DNS issues
+    // The error "Unable to resolve host firebaseappcheck.googleapis.com" 
+    // occurs because Android emulators have limited network access
+    // 
+    // For production deployment, you can:
+    // 1. Uncomment the firebase_app_check import
+    // 2. Add App Check activation in release mode only
+    // 3. Ensure proper DNS configuration on real devices
+    
+  } catch (e) {
+    if (kDebugMode) {
+      print('❌ CRITICAL: Firebase initialization failed: $e');
+      print('⚠️ Please check:');
+      print('   1. google-services.json exists in android/app/');
+      print('   2. firebase_options.dart is properly generated');
+      print('   3. Internet connection is available');
+    }
+    // Don't rethrow - let the app start anyway with limited functionality
+  }
+
+  // Initialize Hive
+  if (kDebugMode) {
+    print('📦 Initializing Hive database...');
+  }
   await Hive.initFlutter();
 
   // Register All Hive Adapters
@@ -425,6 +178,8 @@ Future<void> main() async {
   Hive.registerAdapter(CategoryAdapter());
   Hive.registerAdapter(BudgetAdapter());
   Hive.registerAdapter(BudgetTypeAdapter());
+  Hive.registerAdapter(NotificationModelAdapter());
+  Hive.registerAdapter(NotificationTypeAdapter());
 
   // Open boxes safely without deleting data
   await _openBoxesSafely();
@@ -475,6 +230,20 @@ Future<void> _openBoxesSafely() async {
     await Hive.deleteBoxFromDisk('budgets');
     await Hive.openBox<Budget>('budgets');
   }
+
+  try {
+    await Hive.openBox<NotificationModel>('notifications');
+  } catch (e) {
+    await Hive.deleteBoxFromDisk('notifications');
+    await Hive.openBox<NotificationModel>('notifications');
+  }
+
+  try {
+    await Hive.openBox('appData'); // For streak data and other app settings
+  } catch (e) {
+    await Hive.deleteBoxFromDisk('appData');
+    await Hive.openBox('appData');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -482,13 +251,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider<AuthService>(
-      create: (_) => AuthService(),
-      child: MaterialApp(
-        title: 'Smart Expense Tracker',
-        theme: AppTheme.lightTheme,
-        debugShowCheckedModeBanner: false,
-        home: const AuthChecker(),
+    return MultiProvider(
+      providers: [
+        Provider<AuthService>(
+          create: (_) => AuthService(),
+        ),
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => ThemeProvider(),
+        ),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Smart Expense Tracker',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            debugShowCheckedModeBanner: false,
+            initialRoute: '/',
+            // Add named routes for better navigation management
+            routes: {
+              '/': (context) => const SplashScreen(),
+              '/onboarding': (context) => const OnboardingScreen(),
+              '/auth': (context) => const AuthChecker(),
+              '/main': (context) => const MainScreen(),
+            },
+          );
+        },
       ),
     );
   }

@@ -31,7 +31,8 @@ class _AuthFormFieldState extends State<AuthFormField> {
 
   @override
   Widget build(BuildContext context) {
-    // FIX: Wrapped in a Column to add the label above the field
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -39,7 +40,7 @@ class _AuthFormFieldState extends State<AuthFormField> {
           widget.label,
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            color: AppTheme.darkGrey.withOpacity(0.8),
+            color: AppTheme.getTextColor(context),
           ),
         ),
         const SizedBox(height: 8),
@@ -48,10 +49,18 @@ class _AuthFormFieldState extends State<AuthFormField> {
           obscureText: widget.isPassword ? _obscureText : false,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
+          style: GoogleFonts.poppins(
+            color: AppTheme.getTextColor(context),
+          ),
           decoration: InputDecoration(
             hintText: widget.hintText,
-            // FIX: Changed icon color to our primary Teal (greenish) color
-            prefixIcon: Icon(widget.iconData, color: AppTheme.primaryTeal),
+            hintStyle: GoogleFonts.poppins(
+              color: AppTheme.getSecondaryTextColor(context),
+            ),
+            prefixIcon: Icon(
+              widget.iconData,
+              color: AppTheme.primaryTeal,
+            ),
             suffixIcon: widget.isPassword
                 ? IconButton(
               icon: Icon(
@@ -66,16 +75,19 @@ class _AuthFormFieldState extends State<AuthFormField> {
             )
                 : null,
             filled: true,
-            // FIX: Fields are white
-            fillColor: Colors.white,
+            fillColor: isDark ? AppTheme.darkSurface : Colors.white,
             contentPadding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 16.0),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(
+                color: isDark ? AppTheme.darkCard : Colors.grey.shade300,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(
+                color: isDark ? AppTheme.darkCard : Colors.grey.shade300,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

@@ -22,6 +22,9 @@ class Budget extends HiveObject {
   @HiveField(5)
   DateTime startDate; // For both monthly/yearly
 
+  @HiveField(6)
+  String userId; // User ID to separate budgets by user
+
   Budget({
     required this.id,
     required this.totalAmount,
@@ -29,6 +32,7 @@ class Budget extends HiveObject {
     required this.month,
     required this.budgetType,
     required this.startDate,
+    required this.userId,
   });
 
   // Helper method to check if this is the current budget

@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
-import 'package:smart_expense_tracker/common_widgets/primary_button.dart';
+import 'package:smart_expense_tracker/common_widgets/glass_card.dart';
 import 'package:smart_expense_tracker/models/budget_model.dart';
-import 'package:smart_expense_tracker/models/category_model.dart';
+import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 import 'package:uuid/uuid.dart';
 
 class AddBudgetScreen extends StatefulWidget {
-  const AddBudgetScreen({super.key});
+  final Budget? existingBudget; // For editing mode
+  final dynamic budgetKey; // For updating Hive (can be String UUID or int)
+  
+  const AddBudgetScreen({
+    super.key,
+    this.existingBudget,
+    this.budgetKey,
+  });
 
   @override
   State<AddBudgetScreen> createState() => _AddBudgetScreenState();
@@ -18,9 +25,7 @@ class AddBudgetScreen extends StatefulWidget {
 class _AddBudgetScreenState extends State<AddBudgetScreen> {
   final _totalAmountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final Map<String, TextEditingController> _categoryControllers = {};
 
-  double _categoryTotal = 0.0;
   BudgetType _selectedBudgetType = BudgetType.monthly;
   DateTime _selectedStartDate = DateTime.now();
   String _budgetPeriodLabel = 'This Month';
@@ -28,38 +33,31 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
   @override
   void initState() {
     super.initState();
-    _updateBudgetPeriodLabel();
-    _initializeCategoryControllers();
-  }
-
-  void _initializeCategoryControllers() {
-    // Initialize controllers for existing categories
-    final categoryBox = Hive.box<Category>('categories');
-    final categories = categoryBox.values.toList();
-
-    for (var category in categories) {
-      _categoryControllers[category.name] = TextEditingController();
+    
+    // Load existing budget data if editing
+    if (widget.existingBudget != null) {
+      print('🔄 ========== EDIT MODE LOADING ==========');
+      print('   Budget ID: ${widget.existingBudget!.id}');
+      print('   Budget Key: ${widget.budgetKey}');
+      print('   Total Amount: ${widget.existingBudget!.totalAmount}');
+      
+      _totalAmountController.text = widget.existingBudget!.totalAmount.toStringAsFixed(2);
+      _selectedBudgetType = widget.existingBudget!.budgetType;
+      _selectedStartDate = widget.existingBudget!.budgetType == BudgetType.monthly 
+        ? widget.existingBudget!.month 
+        : widget.existingBudget!.startDate;
+      
+      print('   ✅ EDIT MODE LOADING COMPLETE');
+      print('   ========================================');
     }
+    
+    _updateBudgetPeriodLabel();
   }
 
   @override
   void dispose() {
     _totalAmountController.dispose();
-    for (var controller in _categoryControllers.values) {
-      controller.dispose();
-    }
     super.dispose();
-  }
-
-  void _updateCategoryTotal() {
-    double total = 0.0;
-    _categoryControllers.forEach((key, controller) {
-      final amount = double.tryParse(controller.text) ?? 0.0;
-      total += amount;
-    });
-    setState(() {
-      _categoryTotal = total;
-    });
   }
 
   void _updateBudgetPeriodLabel() {
@@ -98,15 +96,17 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     }
   }
 
-  void _saveBudget() {
+  Future<void> _saveBudget() async {
     if (_formKey.currentState?.validate() ?? false) {
       final totalAmount = double.tryParse(_totalAmountController.text);
       if (totalAmount == null) return;
 
-      if (_categoryTotal > totalAmount) {
+      // Get current user ID
+      final currentUserId = context.read<AuthService>().currentUser?.uid;
+      if (currentUserId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Category budgets exceed total budget!'),
+            content: Text('Error: User not logged in'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
           ),
@@ -114,37 +114,68 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
         return;
       }
 
-      final Map<String, double> categoryBudgets = {};
-      _categoryControllers.forEach((key, controller) {
-        final amount = double.tryParse(controller.text);
-        if (amount != null && amount > 0) {
-          categoryBudgets[key] = amount;
-        }
-      });
-
       final budgetBox = Hive.box<Budget>('budgets');
 
-      // Create budget using YOUR exact model structure
-      final newBudget = Budget(
-        id: const Uuid().v4(),
-        totalAmount: totalAmount,
-        categoryBudgets: categoryBudgets,
-        month: DateTime(_selectedStartDate.year, _selectedStartDate.month), // Use month field
-        budgetType: _selectedBudgetType,
-        startDate: _selectedStartDate,
-      );
+      // Debug logging
+      print('💾 ========== SAVING BUDGET ==========');
+      print('   User ID: $currentUserId');
+      print('   Total amount: \$${totalAmount.toStringAsFixed(2)}');
 
-      budgetBox.put(newBudget.id, newBudget);
+      // Check if we're editing or creating
+      if (widget.existingBudget != null && widget.budgetKey != null) {
+        // Update existing budget - preserve existing category budgets and userId
+        final updatedBudget = Budget(
+          id: widget.existingBudget!.id,
+          totalAmount: totalAmount,
+          categoryBudgets: widget.existingBudget!.categoryBudgets, // Preserve existing category budgets
+          month: DateTime(_selectedStartDate.year, _selectedStartDate.month),
+          budgetType: _selectedBudgetType,
+          startDate: _selectedStartDate,
+          userId: widget.existingBudget!.userId, // Preserve userId
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${_selectedBudgetType == BudgetType.monthly ? 'Monthly' : 'Yearly'} budget created successfully! 🎉'),
-          backgroundColor: AppTheme.primaryTeal,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+        budgetBox.put(widget.budgetKey, updatedBudget);
+        
+        print('✅ Budget UPDATED at key ${widget.budgetKey}');
 
-      Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Budget updated successfully! 🎉'),
+            backgroundColor: AppTheme.primaryTeal,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        // Create new budget with empty category budgets and current userId
+        final newBudget = Budget(
+          id: const Uuid().v4(),
+          totalAmount: totalAmount,
+          categoryBudgets: {}, // Empty - category budgets added separately
+          month: DateTime(_selectedStartDate.year, _selectedStartDate.month),
+          budgetType: _selectedBudgetType,
+          startDate: _selectedStartDate,
+          userId: currentUserId, // Add current user's ID
+        );
+
+        budgetBox.put(newBudget.id, newBudget);
+        
+        print('✅ Budget CREATED at key ${newBudget.id} for user $currentUserId');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${_selectedBudgetType == BudgetType.monthly ? 'Monthly' : 'Yearly'} budget created successfully! 🎉'),
+            backgroundColor: AppTheme.primaryTeal,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+
+      // Force Hive to notify listeners
+      await budgetBox.flush();
+      
+      if (mounted) {
+        Navigator.of(context).pop(true); // Return true to indicate success
+      }
     }
   }
 
@@ -155,142 +186,158 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Create Budget',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: AppTheme.primaryTeal,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(20.0),
-                children: [
-                  _buildHeaderSection(),
-                  const SizedBox(height: 24),
-                  _buildBudgetTypeSection(),
-                  const SizedBox(height: 16),
-                  _buildPeriodSection(),
-                  const SizedBox(height: 24),
-                  _buildOverallBudgetSection(),
-                  const SizedBox(height: 24),
-                  _buildCategoryBudgetSection(),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: isDark
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppTheme.darkBackgroundGradientStart,
+                  AppTheme.darkBackgroundGradientEnd,
                 ],
-              ),
-            ),
-            _buildSaveButton(),
-          ],
+              )
+            : null,
+          color: !isDark ? AppTheme.offWhite : null,
         ),
-      ),
-    );
-  }
-
-  // COPY ALL YOUR EXISTING UI METHODS EXACTLY AS THEY ARE:
-  // _buildHeaderSection, _buildBudgetTypeSection, _buildBudgetTypeOption,
-  // _buildPeriodSection, _buildOverallBudgetSection, _buildCategoryBudgetSection,
-  // _buildEmptyCategoriesState, _buildCategoryInputs, _buildSaveButton
-
-  Widget _buildHeaderSection() {
-    return ModernCard(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        child: Form(
+          key: _formKey,
+          child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryTeal.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.account_balance_wallet_rounded,
-                  color: AppTheme.primaryTeal,
-                  size: 24,
-                ),
-              ),
-              SizedBox(width: 12),
+              // Custom AppBar
+              _buildGradientAppBar(context, isDark),
               Expanded(
-                child: Text(
-                  'Budget Planner',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryTeal,
-                  ),
+                child: ListView(
+                  padding: const EdgeInsets.all(20.0),
+                  children: [
+                    _buildBudgetTypeSection(isDark),
+                    SizedBox(height: 20),
+                    _buildPeriodSection(isDark),
+                    SizedBox(height: 20),
+                    _buildOverallBudgetSection(isDark),
+                    SizedBox(height: 32),
+                    
+                    // Centered Create Budget Button
+                    Container(
+                      height: 56,
+                      decoration: AppTheme.getGradientButtonDecoration(),
+                      child: ElevatedButton.icon(
+                        onPressed: _saveBudget,
+                        icon: Icon(
+                          widget.existingBudget != null
+                              ? Icons.check_circle_rounded
+                              : Icons.add_circle_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        label: Text(
+                          widget.existingBudget != null
+                              ? 'UPDATE BUDGET'
+                              : 'CREATE BUDGET',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: AppTheme.getGradientButtonStyle(),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12),
-          Text(
-            'Plan your ${_selectedBudgetType == BudgetType.monthly ? 'monthly' : 'yearly'} spending and track your financial goals effectively.',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[600],
-              height: 1.4,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildBudgetTypeSection() {
-    return ModernCard(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+  Widget _buildGradientAppBar(BuildContext context, bool isDark) {
+    return Container(
+      decoration: AppTheme.getGlassmorphicHeaderDecoration(context),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 12, 16, 16),
+          child: Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back_rounded, 
+                  color: AppTheme.getHeaderTextColor(context), size: 24),
+                onPressed: () => Navigator.of(context).pop(),
+                style: IconButton.styleFrom(
+                  backgroundColor: AppTheme.getHeaderIconBackground(context),
+                ),
+              ),
+              SizedBox(width: 8),
+              Text(
+                widget.existingBudget != null ? 'Edit Budget' : 'Create Budget',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.getHeaderTextColor(context),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBudgetTypeSection(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
             'BUDGET TYPE',
             style: GoogleFonts.poppins(
               fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-              letterSpacing: 1,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white60 : Colors.grey[600],
+              letterSpacing: 1.5,
             ),
           ),
-          SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildBudgetTypeOption(
-                  type: BudgetType.monthly,
-                  title: 'Monthly',
-                  subtitle: 'Plan month by month',
-                  icon: Icons.calendar_month_rounded,
-                ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildBudgetTypeOption(
+                type: BudgetType.monthly,
+                title: 'Monthly',
+                subtitle: 'Track month by month',
+                icon: Icons.calendar_month_rounded,
+                gradient: [
+                  AppTheme.primaryTeal,
+                  AppTheme.primaryTeal.withOpacity(0.7),
+                ],
+                isDark: isDark,
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: _buildBudgetTypeOption(
-                  type: BudgetType.yearly,
-                  title: 'Yearly',
-                  subtitle: 'Annual overview',
-                  icon: Icons.calendar_today_rounded,
-                ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: _buildBudgetTypeOption(
+                type: BudgetType.yearly,
+                title: 'Yearly',
+                subtitle: 'Annual overview',
+                icon: Icons.calendar_today_rounded,
+                gradient: [
+                  AppTheme.accentOrange,
+                  AppTheme.accentOrange.withOpacity(0.7),
+                ],
+                isDark: isDark,
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -299,422 +346,327 @@ class _AddBudgetScreenState extends State<AddBudgetScreen> {
     required String title,
     required String subtitle,
     required IconData icon,
+    required List<Color> gradient,
+    required bool isDark,
   }) {
     final isSelected = _selectedBudgetType == type;
-    return InkWell(
+    final primaryColor = gradient.first;
+    
+    return GestureDetector(
       onTap: () {
         setState(() {
           _selectedBudgetType = type;
           _updateBudgetPeriodLabel();
         });
       },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryTeal.withOpacity(0.1) : Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryTeal : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppTheme.primaryTeal : Colors.grey[600],
-              size: 24,
-            ),
-            SizedBox(height: 8),
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                color: isSelected ? AppTheme.primaryTeal : AppTheme.darkGrey,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        child: isSelected
+            ? Container(
+                // Solid color for selected state
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: primaryColor,
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      icon,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: Colors.white.withOpacity(0.85),
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              )
+            : GlassCard(
+                // Glassmorphism for unselected state
+                padding: EdgeInsets.all(16),
+                borderRadius: 16,
+                child: Column(
+                  children: [
+                    Icon(
+                      icon,
+                      color: primaryColor,
+                      size: 32,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: isDark ? Colors.white : AppTheme.darkGrey,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: isDark ? Colors.white60 : Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: GoogleFonts.poppins(
-                fontSize: 11,
-                color: isSelected ? AppTheme.primaryTeal : Colors.grey[500],
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildPeriodSection() {
-    return ModernCard(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
+  Widget _buildPeriodSection(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
             'BUDGET PERIOD',
             style: GoogleFonts.poppins(
               fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-              letterSpacing: 1,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white60 : Colors.grey[600],
+              letterSpacing: 1.5,
             ),
           ),
-          SizedBox(height: 12),
-          InkWell(
+        ),
+        GlassCard(
+          padding: EdgeInsets.all(16),
+          borderRadius: 16,
+          child: InkWell(
             onTap: () => _selectStartDate(context),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Row(
-                children: [
-                  Icon(
+            borderRadius: BorderRadius.circular(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryTeal.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
                     _selectedBudgetType == BudgetType.monthly
                         ? Icons.calendar_month_rounded
                         : Icons.calendar_today_rounded,
                     color: AppTheme.primaryTeal,
+                    size: 24,
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _budgetPeriodLabel,
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.darkGrey,
-                          ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _budgetPeriodLabel,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: isDark ? Colors.white : AppTheme.darkGrey,
                         ),
-                        SizedBox(height: 2),
-                        Text(
-                          _selectedBudgetType == BudgetType.monthly
-                              ? 'Monthly Budget Period'
-                              : 'Yearly Budget Period',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                          ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Tap to change period',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: isDark ? Colors.white60 : Colors.grey[500],
+                          fontWeight: FontWeight.w400,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey[500]),
-                ],
-              ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 16,
+                  color: isDark ? Colors.white38 : Colors.grey[400],
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildOverallBudgetSection() {
-    return ModernCard(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'OVERALL BUDGET',
-                style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600],
-                  letterSpacing: 1,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryTeal.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _selectedBudgetType == BudgetType.monthly ? 'MONTHLY' : 'YEARLY',
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryTeal,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '\$',
-                style: GoogleFonts.poppins(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryTeal.withOpacity(0.6),
-                  height: 1,
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  controller: _totalAmountController,
-                  textAlign: TextAlign.start,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  style: GoogleFonts.poppins(
-                    fontSize: 42,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.primaryTeal,
-                    height: 1,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: '0.00',
-                    hintStyle: GoogleFonts.poppins(
-                      fontSize: 42,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.primaryTeal.withOpacity(0.2),
-                      height: 1,
-                    ),
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your total budget';
-                    }
-                    if ((double.tryParse(value) ?? 0) <= 0) {
-                      return 'Budget must be greater than 0';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Divider(color: Colors.grey[200]),
-          SizedBox(height: 8),
-          Text(
-            'This is your total spending limit for the ${_selectedBudgetType == BudgetType.monthly ? 'month' : 'year'}',
+  Widget _buildOverallBudgetSection(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
+            'TOTAL BUDGET AMOUNT',
             style: GoogleFonts.poppins(
-              fontSize: 13,
-              color: Colors.grey[500],
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white60 : Colors.grey[600],
+              letterSpacing: 1.5,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryBudgetSection() {
-    return ValueListenableBuilder<Box<Category>>(
-      valueListenable: Hive.box<Category>('categories').listenable(),
-      builder: (context, box, _) {
-        final categories = box.values.toList();
-
-        for (var category in categories) {
-          if (!_categoryControllers.containsKey(category.name)) {
-            _categoryControllers[category.name] = TextEditingController();
-          }
-        }
-
-        return ModernCard(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'CATEGORY BUDGETS',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  Text(
-                    'Total: \$$_categoryTotal',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: _categoryTotal == 0 ? Colors.grey : AppTheme.accentOrange,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Set individual limits for each category (optional)',
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  color: Colors.grey[500],
-                ),
-              ),
-              SizedBox(height: 20),
-
-              if (categories.isEmpty)
-                _buildEmptyCategoriesState()
-              else
-                ..._buildCategoryInputs(categories),
-            ],
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.primaryTeal.withOpacity(isDark ? 0.1 : 0.05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppTheme.primaryTeal.withOpacity(isDark ? 0.3 : 0.15),
+              width: 1.5,
+            ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEmptyCategoriesState() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.orange[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange[100]!),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline_rounded, color: Colors.orange),
-          SizedBox(width: 12),
-          Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'No Categories Found',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.orange[800],
+                GlassBadge(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  borderRadius: 12,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _selectedBudgetType == BudgetType.monthly
+                            ? Icons.calendar_month_rounded
+                            : Icons.calendar_today_rounded,
+                        size: 14,
+                        color: AppTheme.primaryTeal,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        _selectedBudgetType == BudgetType.monthly ? 'MONTHLY' : 'YEARLY',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryTeal,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Create expense categories first to set individual budgets.',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.orange[700],
+                SizedBox(height: 20),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        '\$',
+                        style: GoogleFonts.poppins(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primaryTeal,
+                          height: 1,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _totalAmountController,
+                        textAlign: TextAlign.start,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        style: GoogleFonts.poppins(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primaryTeal,
+                          height: 1.1,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: '0.00',
+                          hintStyle: GoogleFonts.poppins(
+                            fontSize: 42,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryTeal.withOpacity(0.2),
+                            height: 1.1,
+                          ),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          focusedErrorBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your total budget';
+                          }
+                          if ((double.tryParse(value) ?? 0) <= 0) {
+                            return 'Budget must be greater than 0';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                GlassCard(
+                  padding: EdgeInsets.all(12),
+                  borderRadius: 10,
+                  blur: 5,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 16,
+                        color: AppTheme.accentOrange,
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'This is your total spending limit for ${_selectedBudgetType == BudgetType.monthly ? 'the month' : 'the year'}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: isDark ? Colors.white70 : Colors.grey[700],
+                            fontWeight: FontWeight.w400,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildCategoryInputs(List<Category> categories) {
-    return categories.map((category) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryTeal.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  IconData(int.parse(category.icon), fontFamily: 'MaterialIcons'),
-                  size: 20,
-                  color: AppTheme.primaryTeal,
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category.name,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.darkGrey,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Category Budget',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 120,
-                child: TextFormField(
-                  controller: _categoryControllers[category.name],
-                  textAlign: TextAlign.right,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  onChanged: (value) => _updateCategoryTotal(),
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryTeal,
-                  ),
-                  decoration: InputDecoration(
-                    prefixText: '\$ ',
-                    prefixStyle: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryTeal.withOpacity(0.6),
-                    ),
-                    border: InputBorder.none,
-                    hintText: '0.00',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
-      );
-    }).toList();
-  }
-
-  Widget _buildSaveButton() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      child: PrimaryButton(
-        text: 'CREATE ${_selectedBudgetType == BudgetType.monthly ? 'MONTHLY' : 'YEARLY'} BUDGET',
-        onPressed: _saveBudget,
-      ),
+      ],
     );
   }
 }

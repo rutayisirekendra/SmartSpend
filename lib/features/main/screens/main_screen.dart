@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: FloatingActionButton(
         // MODIFIED: Navigate to ExpenseManagementScreen instead of AddExpenseScreen
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseManagementScreen())),
-        backgroundColor: AppTheme.accentOrange,
+        backgroundColor: AppTheme.getOriginalAccentColor(context),
         foregroundColor: Colors.white,
         // CHANGED ICON: Use a more general 'list' or 'receipt' icon for history view
         child: const Icon(Icons.receipt_long), // Or Icons.list_alt
@@ -72,7 +72,12 @@ class _MainScreenState extends State<MainScreen> {
   // _buildNavItem remains unchanged
   Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final isSelected = _selectedIndex == index;
-    final color = isSelected ? AppTheme.primaryTeal : Colors.grey;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Use turquoise for selected items in dark mode, primary teal for light mode
+    final selectedColor = AppTheme.getPrimaryTealColor(context);
+    final color = isSelected ? selectedColor : AppTheme.getSecondaryTextColor(context);
+    
     return Expanded(
       child: MaterialButton(
         minWidth: 40,

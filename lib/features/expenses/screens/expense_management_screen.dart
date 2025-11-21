@@ -24,7 +24,7 @@ class ExpenseManagementScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const AddExpenseScreen()),
           );
         },
-        backgroundColor: AppTheme.accentOrange,
+        backgroundColor: AppTheme.getAccentColor(context),
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add_card_rounded), // Icon for adding expense
@@ -37,7 +37,7 @@ class ExpenseManagementScreen extends StatelessWidget {
         ),
       ),
       // Center the FAB
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

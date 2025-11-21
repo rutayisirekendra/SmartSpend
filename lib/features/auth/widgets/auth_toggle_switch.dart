@@ -15,12 +15,22 @@ class AuthToggleSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: 250,
       height: 50,
       decoration: BoxDecoration(
-        color: AppTheme.darkGrey.withOpacity(0.1),
+        color: isDark 
+            ? AppTheme.darkCard.withOpacity(0.6)
+            : AppTheme.darkGrey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(25),
+        border: Border.all(
+          color: isDark 
+              ? Colors.white.withOpacity(0.1)
+              : Colors.grey.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: Stack(
         children: [
@@ -32,13 +42,17 @@ class AuthToggleSwitch extends StatelessWidget {
               width: 125,
               height: 50,
               decoration: BoxDecoration(
-                color: AppTheme.accentOrange,
+                gradient: const LinearGradient(
+                  colors: [AppTheme.accentOrange, Color(0xFFFF8A50)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.accentOrange.withOpacity(0.3),
-                    blurRadius: 10,
-                    spreadRadius: 2,
+                    color: AppTheme.accentOrange.withOpacity(0.4),
+                    blurRadius: 12,
+                    spreadRadius: 1,
                   )
                 ],
               ),
@@ -54,7 +68,10 @@ class AuthToggleSwitch extends StatelessWidget {
                       'Login',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: isLogin ? Colors.white : AppTheme.darkGrey.withOpacity(0.6),
+                        fontSize: 15,
+                        color: isLogin 
+                            ? Colors.white 
+                            : (isDark ? Colors.white60 : AppTheme.darkGrey.withOpacity(0.6)),
                       ),
                     ),
                   ),
@@ -68,7 +85,10 @@ class AuthToggleSwitch extends StatelessWidget {
                       'Sign Up',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: !isLogin ? Colors.white : AppTheme.darkGrey.withOpacity(0.6),
+                        fontSize: 15,
+                        color: !isLogin 
+                            ? Colors.white 
+                            : (isDark ? Colors.white60 : AppTheme.darkGrey.withOpacity(0.6)),
                       ),
                     ),
                   ),

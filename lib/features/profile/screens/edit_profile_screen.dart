@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
+import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
 import 'package:smart_expense_tracker/features/auth/widgets/auth_form_field.dart';
 import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 
@@ -85,14 +86,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final user = context.read<AuthService>().currentUser;
 
-    return Scaffold(
-      backgroundColor: AppTheme.offWhite,
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
+    return ThemedBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('Edit Profile'),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
           key: _formKey,
           child: Column(
             children: [
@@ -101,7 +103,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: 60,
-                      backgroundColor: AppTheme.accentOrange.withOpacity(0.2),
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.darkCard
+                          : AppTheme.accentOrange.withOpacity(0.2),
                       backgroundImage: _selectedImage != null
                           ? FileImage(_selectedImage!)
                           : (user?.photoURL != null ? NetworkImage(user!.photoURL!) : null)
@@ -109,7 +113,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: (_selectedImage == null && user?.photoURL == null)
                           ? Text(
                         user?.displayName?.isNotEmpty ?? false ? user!.displayName![0] : 'U',
-                        style: GoogleFonts.poppins(fontSize: 40, fontWeight: FontWeight.bold, color: AppTheme.accentOrange),
+                        style: GoogleFonts.poppins(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppTheme.darkAccentOrange
+                              : AppTheme.accentOrange,
+                        ),
                       )
                           : null,
                     ),
@@ -143,12 +153,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               TextFormField(
                 initialValue: user?.email ?? '',
                 readOnly: true,
+                style: GoogleFonts.poppins(
+                  color: AppTheme.getSecondaryTextColor(context),
+                ),
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: GoogleFonts.poppins(),
-                  prefixIcon: const Icon(Icons.email_outlined),
+                  labelStyle: GoogleFonts.poppins(
+                    color: AppTheme.getSecondaryTextColor(context),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color: AppTheme.getSecondaryTextColor(context),
+                  ),
                   filled: true,
-                  fillColor: Colors.grey[200],
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                      ? AppTheme.darkCard.withOpacity(0.5)
+                      : Colors.grey[200],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -165,6 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
