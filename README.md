@@ -258,7 +258,9 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
   </tr>
 </table>
 
-</div>---
+</div>
+
+---
 
 ## 🧩 Architecture Overview
 
