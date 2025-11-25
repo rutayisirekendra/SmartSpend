@@ -17,15 +17,15 @@ class NoteAdapter extends TypeAdapter<Note> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Note(
-      id: fields[0] as String,
-      userId: fields[1] as String,
-      title: fields[2] as String,
-      content: fields[3] as String,
-      createdAt: fields[4] as DateTime,
-      updatedAt: fields[5] as DateTime,
-      isImportant: fields[6] as bool,
-      tags: (fields[7] as List).cast<String>(),
-      isCompleted: fields[8] as bool,
+      id: fields[0] as String? ?? '',
+      userId: fields[1] as String? ?? 'unknown',
+      title: fields[2] as String? ?? '',
+      content: fields[3] as String? ?? '',
+      createdAt: fields[4] as DateTime? ?? DateTime.now(),
+      updatedAt: fields[5] as DateTime? ?? DateTime.now(),
+      isImportant: fields[6] as bool? ?? false,
+      tags: (fields[7] as List?)?.cast<String>() ?? <String>[],
+      isCompleted: fields[8] as bool? ?? false,
     );
   }
 

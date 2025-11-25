@@ -140,15 +140,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 author: _getDailyAuthor(),
               ),
               const SizedBox(height: 24),
-              Text(
-                "Quick Actions",
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.getTextColor(context),
-                ),
-              ),
-              const SizedBox(height: 16),
               const QuickActionsCard(),
             ],
           ),

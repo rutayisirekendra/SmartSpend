@@ -17,13 +17,13 @@ class ExpenseAdapter extends TypeAdapter<Expense> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Expense(
-      id: fields[0] as String,
-      userId: fields[1] as String,
-      category: fields[2] as String,
-      description: fields[3] as String,
-      amount: fields[4] as double,
-      date: fields[5] as DateTime,
-      vendor: fields[6] as String,
+      id: fields[0] as String? ?? '',
+      userId: fields[1] as String? ?? 'unknown',
+      category: fields[2] as String? ?? 'Other',
+      description: fields[3] as String? ?? '',
+      amount: fields[4] as double? ?? 0.0,
+      date: fields[5] as DateTime? ?? DateTime.now(),
+      vendor: fields[6] as String? ?? '',
     );
   }
 

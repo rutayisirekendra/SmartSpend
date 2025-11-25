@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
-import 'package:smart_expense_tracker/features/auth/screens/auth_checker.dart';
 import 'package:smart_expense_tracker/features/onboarding/screens/onboarding_screen.dart';
 
 /// Initial screen that determines whether to show onboarding or go straight to auth
@@ -25,25 +23,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    
-    // ALWAYS SHOW ONBOARDING - Force reset for testing
-    await prefs.setBool('hasSeenOnboarding', false);
-    final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
-
-    if (!mounted) return;
-
-    if (hasSeenOnboarding) {
-      // Go directly to auth checker
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const AuthChecker()),
-      );
-    } else {
-      // Show onboarding
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-      );
-    }
+    // ALWAYS SHOW ONBOARDING/LANDING PAGES - Every time the app starts
+    // User will always see the 3 landing pages before going to auth
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+    );
   }
 
   @override

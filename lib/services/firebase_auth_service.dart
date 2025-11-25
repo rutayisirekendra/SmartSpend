@@ -143,25 +143,65 @@ class AuthService {
 
   Future<void> updateUserProfile({required String fullName, File? imageFile}) async {
     try {
-      String? photoURL;
-      if (imageFile != null && currentUser != null) {
-        final ref = _firebaseStorage.ref().child('user_avatars').child('${currentUser!.uid}.jpg');
-        await ref.putFile(imageFile);
-        photoURL = await ref.getDownloadURL();
+      if (currentUser == null) {
+        throw Exception('No user is currently signed in.');
       }
 
-      if (currentUser != null) {
-        await currentUser!.updateDisplayName(fullName);
-        if (photoURL != null) {
-          await currentUser!.updatePhotoURL(photoURL);
+      if (kDebugMode) {
+        print('📝 Updating user profile...');
+        print('   Name: $fullName');
+        print('   Has image: ${imageFile != null}');
+      }
+
+      String? photoURL;
+      
+      // Upload profile image if provided
+      if (imageFile != null) {
+        if (kDebugMode) {
+          print('📤 Uploading profile image...');
         }
-        // Important: reload the user to get the updated info
-        await _firebaseAuth.currentUser?.reload();
+        final ref = _firebaseStorage
+            .ref()
+            .child('user_avatars')
+            .child('${currentUser!.uid}.jpg');
+        await ref.putFile(imageFile);
+        photoURL = await ref.getDownloadURL();
+        if (kDebugMode) {
+          print('✅ Image uploaded successfully');
+        }
+      }
+
+      // Update display name
+      await currentUser!.updateDisplayName(fullName);
+      
+      // Update photo URL if available
+      if (photoURL != null) {
+        await currentUser!.updatePhotoURL(photoURL);
+      }
+      
+      // CRITICAL: Reload the user to get the updated info
+      await _firebaseAuth.currentUser?.reload();
+      
+      // Update session data
+      await SessionService.saveUserSession(
+        email: currentUser!.email!,
+        displayName: fullName,
+      );
+      
+      if (kDebugMode) {
+        print('✅ Profile updated successfully');
+        print('   New name: ${_firebaseAuth.currentUser?.displayName}');
       }
     } on FirebaseAuthException catch (e) {
-      throw Exception(e.message);
+      if (kDebugMode) {
+        print('❌ Firebase Auth error updating profile: ${e.code} - ${e.message}');
+      }
+      throw Exception(e.message ?? 'Failed to update profile');
     } catch (e) {
-      throw Exception("An error occurred while updating profile.");
+      if (kDebugMode) {
+        print('❌ Error updating profile: $e');
+      }
+      throw Exception("An error occurred while updating profile: $e");
     }
   }
 

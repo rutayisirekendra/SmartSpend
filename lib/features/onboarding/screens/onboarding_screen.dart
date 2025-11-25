@@ -34,6 +34,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _skipToLogin() {
+    // No need to mark as seen - we want to show landing pages every time
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const AuthChecker(),

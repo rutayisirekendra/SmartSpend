@@ -20,8 +20,9 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   Color _selectedColor = AppTheme.primaryTeal;
   final _formKey = GlobalKey<FormState>();
 
-  // Example color palette for picking
+  // Expanded color palette with more vibrant options
   final List<Color> _colorOptions = [
+    // Original colors
     AppTheme.primaryTeal,
     AppTheme.accentOrange,
     Colors.blue,
@@ -33,26 +34,164 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     Colors.pink,
     Colors.indigo,
     Colors.grey,
+    // Additional vibrant colors
+    Colors.deepPurple,
+    Colors.cyan,
+    Colors.teal,
+    Colors.lime,
+    Colors.amber,
+    Colors.deepOrange,
+    Colors.lightBlue,
+    Colors.lightGreen,
+    Colors.yellow,
+    Colors.blueGrey,
+    const Color(0xFFE91E63), // Pink accent
+    const Color(0xFF9C27B0), // Purple accent
+    const Color(0xFF673AB7), // Deep Purple accent
+    const Color(0xFF3F51B5), // Indigo accent
+    const Color(0xFF2196F3), // Blue accent
+    const Color(0xFF00BCD4), // Cyan accent
+    const Color(0xFF009688), // Teal accent
+    const Color(0xFF4CAF50), // Green accent
+    const Color(0xFF8BC34A), // Light Green accent
+    const Color(0xFFCDDC39), // Lime accent
+    const Color(0xFFFFEB3B), // Yellow accent
+    const Color(0xFFFFC107), // Amber accent
+    const Color(0xFFFF9800), // Orange accent
+    const Color(0xFFFF5722), // Deep Orange accent
+    const Color(0xFF795548), // Brown accent
+    const Color(0xFF607D8B), // Blue Grey accent
   ];
 
   final List<Map<String, dynamic>> _iconOptions = [
+    // Food & Dining
     {'icon': Icons.restaurant_rounded, 'name': 'Food'},
-    {'icon': Icons.directions_car_rounded, 'name': 'Transport'},
-    {'icon': Icons.shopping_bag_rounded, 'name': 'Shopping'},
-    {'icon': Icons.movie_rounded, 'name': 'Entertainment'},
-    {'icon': Icons.receipt_long_rounded, 'name': 'Bills'},
-    {'icon': Icons.health_and_safety_rounded, 'name': 'Health'},
-    {'icon': Icons.school_rounded, 'name': 'Education'},
-    {'icon': Icons.home_rounded, 'name': 'Home'},
-    {'icon': Icons.work_rounded, 'name': 'Work'},
-    {'icon': Icons.flight_rounded, 'name': 'Travel'},
-    {'icon': Icons.fitness_center_rounded, 'name': 'Fitness'},
-    {'icon': Icons.celebration_rounded, 'name': 'Celebration'},
-    {'icon': Icons.pets_rounded, 'name': 'Pets'},
-    {'icon': Icons.local_gas_station_rounded, 'name': 'Gas'},
+    {'icon': Icons.fastfood_rounded, 'name': 'Fast Food'},
     {'icon': Icons.local_cafe_rounded, 'name': 'Coffee'},
+    {'icon': Icons.local_pizza_rounded, 'name': 'Pizza'},
+    {'icon': Icons.cake_rounded, 'name': 'Dessert'},
+    {'icon': Icons.lunch_dining_rounded, 'name': 'Lunch'},
+    {'icon': Icons.dinner_dining_rounded, 'name': 'Dinner'},
+    {'icon': Icons.breakfast_dining_rounded, 'name': 'Breakfast'},
+    {'icon': Icons.local_bar_rounded, 'name': 'Bar'},
+    {'icon': Icons.icecream_rounded, 'name': 'Ice Cream'},
+    
+    // Transportation
+    {'icon': Icons.directions_car_rounded, 'name': 'Transport'},
+    {'icon': Icons.local_gas_station_rounded, 'name': 'Gas'},
+    {'icon': Icons.local_taxi_rounded, 'name': 'Taxi'},
+    {'icon': Icons.directions_bus_rounded, 'name': 'Bus'},
+    {'icon': Icons.directions_subway_rounded, 'name': 'Subway'},
+    {'icon': Icons.train_rounded, 'name': 'Train'},
+    {'icon': Icons.flight_rounded, 'name': 'Travel'},
+    {'icon': Icons.airport_shuttle_rounded, 'name': 'Airport'},
+    {'icon': Icons.directions_bike_rounded, 'name': 'Bike'},
+    {'icon': Icons.directions_walk_rounded, 'name': 'Walk'},
+    {'icon': Icons.local_parking_rounded, 'name': 'Parking'},
+    
+    // Shopping
+    {'icon': Icons.shopping_bag_rounded, 'name': 'Shopping'},
+    {'icon': Icons.shopping_cart_rounded, 'name': 'Cart'},
+    {'icon': Icons.store_rounded, 'name': 'Store'},
+    {'icon': Icons.local_mall_rounded, 'name': 'Mall'},
+    {'icon': Icons.checkroom_rounded, 'name': 'Clothing'},
+    {'icon': Icons.watch_rounded, 'name': 'Accessories'},
+    {'icon': Icons.local_offer_rounded, 'name': 'Deals'},
+    
+    // Entertainment & Hobbies
+    {'icon': Icons.movie_rounded, 'name': 'Entertainment'},
+    {'icon': Icons.theater_comedy_rounded, 'name': 'Theater'},
+    {'icon': Icons.music_note_rounded, 'name': 'Music'},
+    {'icon': Icons.sports_esports_rounded, 'name': 'Gaming'},
+    {'icon': Icons.sports_soccer_rounded, 'name': 'Sports'},
+    {'icon': Icons.casino_rounded, 'name': 'Casino'},
+    {'icon': Icons.celebration_rounded, 'name': 'Celebration'},
+    {'icon': Icons.park_rounded, 'name': 'Park'},
+    {'icon': Icons.beach_access_rounded, 'name': 'Beach'},
+    {'icon': Icons.pool_rounded, 'name': 'Pool'},
+    {'icon': Icons.spa_rounded, 'name': 'Spa'},
+    
+    // Bills & Utilities
+    {'icon': Icons.receipt_long_rounded, 'name': 'Bills'},
+    {'icon': Icons.bolt_rounded, 'name': 'Electricity'},
+    {'icon': Icons.water_drop_rounded, 'name': 'Water'},
+    {'icon': Icons.wifi_rounded, 'name': 'Internet'},
+    {'icon': Icons.phone_rounded, 'name': 'Phone'},
+    {'icon': Icons.router_rounded, 'name': 'Router'},
+    
+    // Health & Wellness
+    {'icon': Icons.health_and_safety_rounded, 'name': 'Health'},
+    {'icon': Icons.medical_services_rounded, 'name': 'Medical'},
+    {'icon': Icons.medication_rounded, 'name': 'Medicine'},
+    {'icon': Icons.fitness_center_rounded, 'name': 'Fitness'},
+    {'icon': Icons.self_improvement_rounded, 'name': 'Wellness'},
+    {'icon': Icons.favorite_rounded, 'name': 'Heart Health'},
+    {'icon': Icons.psychology_rounded, 'name': 'Mental Health'},
+    
+    // Education
+    {'icon': Icons.school_rounded, 'name': 'Education'},
+    {'icon': Icons.menu_book_rounded, 'name': 'Books'},
+    {'icon': Icons.library_books_rounded, 'name': 'Library'},
+    {'icon': Icons.science_rounded, 'name': 'Science'},
+    {'icon': Icons.computer_rounded, 'name': 'Computer'},
+    
+    // Home & Family
+    {'icon': Icons.home_rounded, 'name': 'Home'},
+    {'icon': Icons.weekend_rounded, 'name': 'Furniture'},
+    {'icon': Icons.build_rounded, 'name': 'Maintenance'},
+    {'icon': Icons.local_laundry_service_rounded, 'name': 'Laundry'},
+    {'icon': Icons.cleaning_services_rounded, 'name': 'Cleaning'},
+    {'icon': Icons.child_care_rounded, 'name': 'Childcare'},
+    {'icon': Icons.family_restroom_rounded, 'name': 'Family'},
+    
+    // Work & Business
+    {'icon': Icons.work_rounded, 'name': 'Work'},
+    {'icon': Icons.business_rounded, 'name': 'Business'},
+    {'icon': Icons.laptop_rounded, 'name': 'Laptop'},
+    {'icon': Icons.print_rounded, 'name': 'Printing'},
+    {'icon': Icons.email_rounded, 'name': 'Email'},
+    
+    // Pets
+    {'icon': Icons.pets_rounded, 'name': 'Pets'},
+    
+    // Electronics & Technology
     {'icon': Icons.phone_android_rounded, 'name': 'Electronics'},
+    {'icon': Icons.tablet_android_rounded, 'name': 'Tablet'},
+    {'icon': Icons.watch_rounded, 'name': 'Smart Watch'},
+    {'icon': Icons.headphones_rounded, 'name': 'Audio'},
+    {'icon': Icons.camera_alt_rounded, 'name': 'Camera'},
+    {'icon': Icons.videogame_asset_rounded, 'name': 'Console'},
+    
+    // Finance & Banking
+    {'icon': Icons.account_balance_rounded, 'name': 'Bank'},
+    {'icon': Icons.savings_rounded, 'name': 'Savings'},
+    {'icon': Icons.monetization_on_rounded, 'name': 'Money'},
+    {'icon': Icons.credit_card_rounded, 'name': 'Credit Card'},
+    {'icon': Icons.payment_rounded, 'name': 'Payment'},
+    {'icon': Icons.currency_exchange_rounded, 'name': 'Exchange'},
+    {'icon': Icons.attach_money_rounded, 'name': 'Dollar'},
+    
+    // Gifts & Donations
+    {'icon': Icons.card_giftcard_rounded, 'name': 'Gift'},
+    {'icon': Icons.volunteer_activism_rounded, 'name': 'Donation'},
+    {'icon': Icons.redeem_rounded, 'name': 'Reward'},
+    
+    // Personal Care
+    {'icon': Icons.face_rounded, 'name': 'Personal Care'},
+    {'icon': Icons.cut_rounded, 'name': 'Haircut'},
+    {'icon': Icons.shower_rounded, 'name': 'Shower'},
+    
+    // Insurance & Legal
+    {'icon': Icons.security_rounded, 'name': 'Insurance'},
+    {'icon': Icons.gavel_rounded, 'name': 'Legal'},
+    
+    // Other
     {'icon': Icons.category_rounded, 'name': 'Other'},
+    {'icon': Icons.more_horiz_rounded, 'name': 'More'},
+    {'icon': Icons.add_circle_outline_rounded, 'name': 'Add'},
+    {'icon': Icons.star_rounded, 'name': 'Favorite'},
+    {'icon': Icons.diamond_rounded, 'name': 'Premium'},
+    {'icon': Icons.emoji_events_rounded, 'name': 'Award'},
   ];
 
   @override

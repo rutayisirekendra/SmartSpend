@@ -14,6 +14,8 @@ class ModernCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       padding: padding,
       decoration: BoxDecoration(
@@ -21,15 +23,27 @@ class ModernCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.08),
+              color: isDark 
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.12),
               blurRadius: 30,
-              spreadRadius: 5,
+              spreadRadius: isDark ? 5 : 2,
               offset: const Offset(0, 10),
             ),
+            // Add second shadow for light mode for better depth
+            if (!isDark)
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 15,
+                spreadRadius: 1,
+                offset: const Offset(0, 5),
+              ),
           ],
           border: Border.all(
-            color: Colors.grey.withOpacity(0.1),
-            width: 1,
+            color: isDark 
+                ? Colors.grey.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.2),
+            width: 1.5,
           )
       ),
       child: child,

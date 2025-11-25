@@ -188,61 +188,125 @@ Future<void> main() async {
 }
 
 Future<void> _openBoxesSafely() async {
+  if (kDebugMode) {
+    print('🔄 Opening Hive boxes safely...');
+  }
+  
   // Open all boxes normally - only delete if there's a schema error
   try {
+    if (kDebugMode) print('📦 Opening expenses box...');
     await Hive.openBox<Expense>('expenses');
+    if (kDebugMode) print('✅ Expenses box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening expenses box: $e');
+      print('🔄 Deleting and recreating expenses box...');
+    }
     await Hive.deleteBoxFromDisk('expenses');
     await Hive.openBox<Expense>('expenses');
+    if (kDebugMode) print('✅ Expenses box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening goals box...');
     await Hive.openBox<Goal>('goals');
+    if (kDebugMode) print('✅ Goals box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening goals box: $e');
+      print('🔄 Deleting and recreating goals box...');
+    }
     await Hive.deleteBoxFromDisk('goals');
     await Hive.openBox<Goal>('goals');
+    if (kDebugMode) print('✅ Goals box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening notes box...');
     await Hive.openBox<Note>('notes');
+    if (kDebugMode) print('✅ Notes box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening notes box: $e');
+      print('🔄 Deleting and recreating notes box...');
+    }
     await Hive.deleteBoxFromDisk('notes');
     await Hive.openBox<Note>('notes');
+    if (kDebugMode) print('✅ Notes box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening user box...');
     await Hive.openBox<UserModel>('user');
+    if (kDebugMode) print('✅ User box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening user box: $e');
+      print('🔄 Deleting and recreating user box...');
+    }
     await Hive.deleteBoxFromDisk('user');
     await Hive.openBox<UserModel>('user');
+    if (kDebugMode) print('✅ User box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening categories box...');
     await Hive.openBox<Category>('categories');
+    if (kDebugMode) print('✅ Categories box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening categories box: $e');
+      print('🔄 Deleting and recreating categories box...');
+    }
     await Hive.deleteBoxFromDisk('categories');
     await Hive.openBox<Category>('categories');
+    if (kDebugMode) print('✅ Categories box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening budgets box...');
     await Hive.openBox<Budget>('budgets');
+    if (kDebugMode) print('✅ Budgets box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening budgets box: $e');
+      print('🔄 Deleting and recreating budgets box...');
+    }
     await Hive.deleteBoxFromDisk('budgets');
     await Hive.openBox<Budget>('budgets');
+    if (kDebugMode) print('✅ Budgets box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening notifications box...');
     await Hive.openBox<NotificationModel>('notifications');
+    if (kDebugMode) print('✅ Notifications box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening notifications box: $e');
+      print('🔄 Deleting and recreating notifications box...');
+    }
     await Hive.deleteBoxFromDisk('notifications');
     await Hive.openBox<NotificationModel>('notifications');
+    if (kDebugMode) print('✅ Notifications box recreated successfully');
   }
 
   try {
+    if (kDebugMode) print('📦 Opening appData box...');
     await Hive.openBox('appData'); // For streak data and other app settings
+    if (kDebugMode) print('✅ AppData box opened successfully');
   } catch (e) {
+    if (kDebugMode) {
+      print('⚠️ Error opening appData box: $e');
+      print('🔄 Deleting and recreating appData box...');
+    }
     await Hive.deleteBoxFromDisk('appData');
     await Hive.openBox('appData');
+    if (kDebugMode) print('✅ AppData box recreated successfully');
+  }
+  
+  if (kDebugMode) {
+    print('🎉 All Hive boxes opened successfully!');
   }
 }
 

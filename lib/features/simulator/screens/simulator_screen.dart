@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
 import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/models/budget_model.dart';
 import 'package:smart_expense_tracker/models/expense_model.dart';
+import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 
 class SimulatorScreen extends StatefulWidget {
   const SimulatorScreen({Key? key}) : super(key: key);
@@ -67,6 +69,21 @@ class _SimulatorScreenState extends State<SimulatorScreen>
     if (_formKey.currentState!.validate()) {
       final itemAmount = double.parse(_itemAmountController.text);
 
+      // Get current user ID
+      final currentUserId = context.read<AuthService>().currentUser?.uid;
+      
+      if (currentUserId == null) {
+        setState(() {
+          _resultMessage = "⚠️ Error: Please log in to use the simulator.";
+          _resultColor = Colors.redAccent;
+          _resultIconData = Icons.error_outline_rounded;
+          _showResult = true;
+        });
+        _cardAnimationController.forward(from: 0.0);
+        _iconAnimationController.forward(from: 0.0);
+        return;
+      }
+
       final budgetBox = Hive.box<Budget>('budgets');
       final expenseBox = Hive.box<Expense>('expenses');
       final now = DateTime.now();
@@ -75,6 +92,7 @@ class _SimulatorScreenState extends State<SimulatorScreen>
       try {
         currentBudget = budgetBox.values.firstWhere(
               (budget) =>
+          budget.userId == currentUserId &&
           budget.budgetType == BudgetType.monthly &&
               budget.month.year == now.year &&
               budget.month.month == now.month,
@@ -97,6 +115,7 @@ class _SimulatorScreenState extends State<SimulatorScreen>
 
       final expensesThisMonth = expenseBox.values.where(
             (expense) =>
+        expense.userId == currentUserId &&
         expense.date.year == now.year && expense.date.month == now.month,
       );
       final double spentSoFar =

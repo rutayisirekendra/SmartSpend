@@ -5,13 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
 import 'package:smart_expense_tracker/common_widgets/primary_button.dart';
-import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
 import 'package:smart_expense_tracker/models/budget_model.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/models/expense_model.dart';
 import 'package:smart_expense_tracker/models/category_model.dart';
 import 'package:smart_expense_tracker/features/budget/screens/add_budget_screen.dart';
-import 'package:smart_expense_tracker/features/budget/screens/edit_budget_screen.dart';
 import 'package:smart_expense_tracker/features/budget/screens/add_category_budget_screen.dart';
 import 'package:smart_expense_tracker/features/budget/screens/budget_history_screen.dart';
 import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
@@ -28,16 +26,15 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ThemedBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Column(
-          children: [
-            _buildHeaderSection(),
-            Expanded(
-              child: ValueListenableBuilder<Box<Budget>>(
-                valueListenable: Hive.box<Budget>('budgets').listenable(),
-                builder: (context, box, _) {
+    return Scaffold(
+      backgroundColor: AppTheme.getBackgroundColor(context),
+      body: Column(
+        children: [
+          _buildHeaderSection(),
+          Expanded(
+            child: ValueListenableBuilder<Box<Budget>>(
+              valueListenable: Hive.box<Budget>('budgets').listenable(),
+              builder: (context, box, _) {
                 // Get current user ID
                 final currentUserId = context.read<AuthService>().currentUser?.uid;
                 
@@ -50,13 +47,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
                 // Filter budgets by current user
                 final userBudgets = budgets.where((budget) => budget.userId == currentUserId).toList();
-
-                // DEBUG: Print all budgets
-                print('🔍 DEBUG: Total budgets in Hive: ${budgets.length}');
-                print('🔍 DEBUG: User budgets: ${userBudgets.length} for user $currentUserId');
-                for (var budget in userBudgets) {
-                  print('   📊 Budget: ${budget.id} | Type: ${budget.budgetType} | Month: ${budget.month} | StartDate: ${budget.startDate}');
-                }
 
                 // Unified filtering for monthly and yearly
                 List<Budget> currentBudgets;
@@ -105,7 +95,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       children: [
                         _buildBudgetOverviewCard(currentBudget, totalSpent, box),
                         const SizedBox(height: 24),
-                        _buildCategoryBreakdownSection(currentBudget, periodExpenses, box),
+                        _buildCategoryBreakdownSection(currentBudget, periodExpenses, box, userBudgets),
                       ],
                     );
                   },
@@ -116,22 +106,21 @@ class _BudgetScreenState extends State<BudgetScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-          heroTag: 'budget_fab', // Unique tag to avoid Hero conflicts
-          onPressed: () => _showBudgetOptions(context),
-          backgroundColor: AppTheme.getAccentColor(context),
-          foregroundColor: Colors.white,
-          elevation: 4,
-          icon: const Icon(Icons.add_rounded),
-          label: Text(
-            'Add Budget',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+        heroTag: 'budget_fab',
+        onPressed: () => _showBudgetOptions(context),
+        backgroundColor: AppTheme.getAccentColor(context),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        icon: const Icon(Icons.add_rounded),
+        label: Text(
+          'Add Budget',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -148,10 +137,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
           color: AppTheme.getCardColor(context),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(
-              color: isDark 
-                  ? Colors.black.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.1),
+            BoxShadow(                  color: isDark 
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -164,7 +152,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                color: AppTheme.getPrimaryColor(context).withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -190,7 +178,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                  color: AppTheme.getPrimaryColor(context).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.account_balance_wallet_rounded, color: AppTheme.getPrimaryColor(context)),
@@ -218,7 +206,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.getPrimaryColor(context).withOpacity(0.1),
+                  color: AppTheme.getPrimaryColor(context).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.category_rounded, color: AppTheme.getPrimaryColor(context)),
@@ -250,21 +238,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
   }
 
   // UPDATED: Navigate to actual AddBudgetScreen
-  void _navigateToAddBudget(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => AddBudgetScreen()),
-    ).then((result) {
-      print('📥 Returned from AddBudgetScreen with result: $result');
-      setState(() {}); // Refresh when returning
-    });
+  void _navigateToAddBudget(BuildContext context) {      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => AddBudgetScreen()),
+      ).then((result) {
+        setState(() {}); // Refresh when returning
+      });
   }
 
   // UPDATED: Navigate to actual AddCategoryBudgetScreen
   void _navigateToAddCategoryBudget(BuildContext context) {
     final now = DateTime.now();
     final budgetBox = Hive.box<Budget>('budgets');
-    final budgets = budgetBox.values.toList();
+    final user = context.read<AuthService>().currentUser;
+    final userId = user?.uid ?? 'guest';
+    
+    // Filter budgets by current user
+    final budgets = budgetBox.values.where((budget) => budget.userId == userId).toList();
 
     List<Budget> currentBudgets;
     if (_selectedView == BudgetType.monthly) {
@@ -293,20 +283,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
     } else {
       final currentBudget = currentBudgets.first;
       
-      print('🚀 ========== NAVIGATING TO ADD CATEGORY BUDGET ==========');
-      print('   Current budget ID (before refresh): ${currentBudget.id}');
-      print('   Current budget category budgets: ${currentBudget.categoryBudgets}');
-      
       // Get the fresh budget from Hive to ensure we have latest category budgets
       final budgetKey = _findBudgetKey(budgetBox, currentBudget);
-      print('   Found budget key: $budgetKey');
       
       final freshBudget = budgetKey != null ? budgetBox.get(budgetKey) : currentBudget;
-      
-      print('   Fresh budget ID: ${freshBudget?.id}');
-      print('   Fresh budget category budgets: ${freshBudget?.categoryBudgets}');
-      print('   Fresh budget is different from current? ${freshBudget != currentBudget}');
-      print('   ==========================================================');
       
       Navigator.push(
         context,
@@ -316,8 +296,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
       ).then((updatedBudget) {
         // If a budget was returned (updated), use it to refresh
         if (updatedBudget != null && updatedBudget is Budget) {
-          print('✅ Returned from AddCategoryBudgetScreen with updated budget');
-          print('   Updated category budgets: ${updatedBudget.categoryBudgets}');
+          // Budget was updated successfully
         }
         setState(() {}); // Always refresh after returning
       });
@@ -326,28 +305,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   // UPDATED: Navigate to actual EditBudgetScreen or AddBudgetScreen in edit mode
   void _editBudget(Budget budget, Box<Budget> budgetBox) {
-    print('🔧 ========== EDIT BUDGET CLICKED ==========');
-    print('   Original budget ID: ${budget.id}');
-    print('   Original budget category budgets: ${budget.categoryBudgets}');
-    
     final budgetKey = _findBudgetKey(budgetBox, budget);
-    print('   Found budget key: $budgetKey');
     
     if (budgetKey != null) {
       // Get the fresh budget from Hive to ensure we have latest data
       final freshBudget = budgetBox.get(budgetKey);
       
-      print('   Fresh budget from Hive: ${freshBudget != null ? "FOUND" : "NOT FOUND"}');
-      if (freshBudget != null) {
-        print('   Fresh budget ID: ${freshBudget.id}');
-        print('   Fresh budget total: ${freshBudget.totalAmount}');
-        print('   Fresh budget category budgets: ${freshBudget.categoryBudgets}');
-        print('   Fresh budget category budgets length: ${freshBudget.categoryBudgets.length}');
-      }
-      
       final budgetToEdit = freshBudget ?? budget;
-      print('   Budget to edit has ${budgetToEdit.categoryBudgets.length} category budgets');
-      print('   ==========================================');
       
       // Use AddBudgetScreen in edit mode to allow category budget editing
       Navigator.push(
@@ -481,6 +445,31 @@ class _BudgetScreenState extends State<BudgetScreen> {
     }
   }
 
+  // Helper method to get aggregated category budgets for yearly view
+  // If viewing yearly and no yearly budget exists, aggregate from monthly budgets
+  Map<String, double> _getDisplayCategoryBudgets(Budget budget, List<Budget> allUserBudgets) {
+    // If it's a monthly budget or yearly budget has categories, return as is
+    if (budget.budgetType == BudgetType.monthly || budget.categoryBudgets.isNotEmpty) {
+      return budget.categoryBudgets;
+    }
+    
+    // For yearly view with no category budgets, aggregate from monthly budgets of this year
+    final yearlyAggregated = <String, double>{};
+    final monthlyBudgets = allUserBudgets.where((b) => 
+      b.budgetType == BudgetType.monthly && 
+      b.month.year == budget.startDate.year
+    ).toList();
+    
+    // Aggregate all category budgets from monthly budgets
+    for (var monthlyBudget in monthlyBudgets) {
+      for (var entry in monthlyBudget.categoryBudgets.entries) {
+        yearlyAggregated[entry.key] = (yearlyAggregated[entry.key] ?? 0) + entry.value;
+      }
+    }
+    
+    return yearlyAggregated;
+  }
+
   Widget _buildHeaderSection() {
     return Container(
       width: double.infinity,
@@ -604,7 +593,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isSelected ? AppTheme.getPrimaryColor(context) : Colors.white.withOpacity(0.8),
+              color: isSelected ? AppTheme.getPrimaryColor(context) : Colors.white.withValues(alpha: 0.8),
             ),
           ),
         ),
@@ -640,7 +629,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: (isOverBudget ? Colors.red : AppTheme.getPrimaryColor(context)).withOpacity(0.1),
+                      color: (isOverBudget ? Colors.red : AppTheme.getPrimaryColor(context)).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -667,7 +656,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   // WORKING EDIT BUTTON
                   IconButton(
                     onPressed: () {
-                      print('Edit budget button pressed');
                       _editBudget(budget, budgetBox);
                     },
                     icon: Icon(Icons.edit_rounded, size: 20),
@@ -735,7 +723,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
             child: LinearProgressIndicator(
               value: percentage.clamp(0.0, 1.0),
               minHeight: 16,
-              backgroundColor: (isOverBudget ? Colors.red : AppTheme.getPrimaryColor(context)).withOpacity(0.2),
+              backgroundColor: (isOverBudget ? Colors.red : AppTheme.getPrimaryColor(context)).withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(
                 isOverBudget ? Colors.red : AppTheme.getPrimaryColor(context),
               ),
@@ -783,10 +771,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
   }
 
   // Build category breakdown section - ONLY show categories with budgets
-  Widget _buildCategoryBreakdownSection(Budget budget, List<Expense> periodExpenses, Box<Budget> budgetBox) {
-    print('DEBUG: categoryBudgets for budget ${budget.id}: ${budget.categoryBudgets}');
-    print('DEBUG: categoryBudgets isEmpty: ${budget.categoryBudgets.isEmpty}');
-    print('DEBUG: categoryBudgets length: ${budget.categoryBudgets.length}');
+  Widget _buildCategoryBreakdownSection(Budget budget, List<Expense> periodExpenses, Box<Budget> budgetBox, List<Budget> allUserBudgets) {
+    // Get the display category budgets (aggregated for yearly view if needed)
+    final displayCategoryBudgets = _getDisplayCategoryBudgets(budget, allUserBudgets);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -806,11 +793,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
         ),
         const SizedBox(height: 16),
         // Show empty state if no category budgets
-        if (budget.categoryBudgets.isEmpty)
+        if (displayCategoryBudgets.isEmpty)
           _buildNoCategoryBudgetsState(context, budget, budgetBox)
         else
           // Only display categories that have budgets
-          ...budget.categoryBudgets.entries.map((entry) {
+          ...displayCategoryBudgets.entries.map((entry) {
           final category = _getCategoryByName(entry.key);
           final categoryColor = category?.color ?? AppTheme.getPrimaryColor(context).value;
           final categoryIcon = category?.icon != null ? IconData(int.parse(category!.icon), fontFamily: 'MaterialIcons') : Icons.category_rounded;
@@ -820,20 +807,36 @@ class _BudgetScreenState extends State<BudgetScreen> {
           final percentage = categoryBudget > 0 ? (categorySpent / categoryBudget) : 0.0;
           final isOverBudget = categorySpent > categoryBudget;
           final remaining = categoryBudget - categorySpent;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
           
           return Container(
             margin: const EdgeInsets.only(bottom: 12.0),
             decoration: BoxDecoration(
               color: AppTheme.getCardColor(context),
               borderRadius: BorderRadius.circular(16.0),
+              border: Border.all(
+                color: isDark 
+                    ? Colors.grey.withOpacity(0.1)
+                    : Colors.grey.withOpacity(0.2),
+                width: 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).brightness == Brightness.dark
+                  color: isDark
                       ? Colors.black.withOpacity(0.3)
-                      : Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                      : Colors.black.withOpacity(0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                  spreadRadius: isDark ? 0 : 1,
                 ),
+                // Add second shadow for light mode for better depth
+                if (!isDark)
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                    spreadRadius: 1,
+                  ),
               ],
             ),
             child: Padding(

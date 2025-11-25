@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
 import 'package:smart_expense_tracker/models/budget_model.dart';
 import 'package:smart_expense_tracker/models/expense_model.dart';
 import 'package:smart_expense_tracker/models/category_model.dart';
+import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 import 'package:intl/intl.dart';
 
 class BudgetHistoryScreen extends StatefulWidget {
@@ -30,11 +32,18 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
             child: ValueListenableBuilder<Box<Budget>>(
               valueListenable: Hive.box<Budget>('budgets').listenable(),
               builder: (context, box, _) {
+                // Get current user ID
+                final currentUserId = context.read<AuthService>().currentUser?.uid;
+                
+                if (currentUserId == null) {
+                  return _buildEmptyState();
+                }
+                
                 final allBudgets = box.values.toList();
                 
-                // Filter budgets by type
+                // Filter budgets by current user AND type
                 final filteredBudgets = allBudgets
-                    .where((b) => b.budgetType == _selectedView)
+                    .where((b) => b.userId == currentUserId && b.budgetType == _selectedView)
                     .toList();
                 
                 // Sort by date (most recent first)
@@ -47,7 +56,10 @@ class _BudgetHistoryScreenState extends State<BudgetHistoryScreen> {
                 return ValueListenableBuilder<Box<Expense>>(
                   valueListenable: Hive.box<Expense>('expenses').listenable(),
                   builder: (context, expenseBox, _) {
-                    final allExpenses = expenseBox.values.toList();
+                    // Filter expenses by current user
+                    final allExpenses = expenseBox.values
+                        .where((expense) => expense.userId == currentUserId)
+                        .toList();
                     
                     return ListView.builder(
                       padding: const EdgeInsets.all(20),

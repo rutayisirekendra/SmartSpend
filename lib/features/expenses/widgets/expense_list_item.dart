@@ -119,18 +119,36 @@ class ExpenseListItem extends StatelessWidget {
         ? IconData(int.tryParse(category.icon) ?? Icons.category_rounded.codePoint, fontFamily: 'MaterialIcons')
         : Icons.category_rounded;
     final categoryColor = category != null ? Color(category.color) : Colors.grey;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       decoration: BoxDecoration(
         color: AppTheme.getCardColor(context),
         borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(
+          color: isDark 
+              ? Colors.grey.withOpacity(0.1)
+              : Colors.grey.withOpacity(0.2),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.getTextColor(context).withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: isDark 
+                ? Colors.black.withOpacity(0.3)
+                : Colors.black.withOpacity(0.12),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: isDark ? 0 : 1,
           ),
+          // Add second shadow for light mode for better depth
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+              spreadRadius: 1,
+            ),
         ],
       ),
       child: Padding(

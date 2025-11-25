@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,10 +11,17 @@ import 'package:smart_expense_tracker/features/profile/screens/category_manageme
 import 'package:smart_expense_tracker/features/profile/screens/edit_profile_screen.dart';
 import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
 import 'package:smart_expense_tracker/services/session_service.dart';
+import 'package:smart_expense_tracker/services/data_cleanup_service.dart';
+import 'package:smart_expense_tracker/services/data_cleanup_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return ThemedBackground(
@@ -70,6 +78,14 @@ class ProfileScreen extends StatelessWidget {
                           _showComingSoonSnackbar(context);
                         },
                       ),
+                      if (kDebugMode)
+                        _buildSettingsTile(
+                          context: context,
+                          icon: Icons.storage_rounded,
+                          title: 'Data Management (Debug)',
+                          subtitle: 'View and manage local data',
+                          onTap: () => _showDataManagementDialog(context),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -394,27 +410,28 @@ class ProfileScreen extends StatelessWidget {
               );
 
               try {
+                // Navigate to onboarding FIRST (before signing out)
+                // This prevents the AuthChecker from briefly showing the login screen
+                if (context.mounted) {
+                  // Close the loading dialog
+                  Navigator.of(context).pop();
+                  
+                  // Navigate to onboarding and remove all previous routes
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/onboarding',
+                    (route) => false,
+                  );
+                }
+                
                 // Clear any local data/cache if needed
                 await _clearLocalData();
                 
                 // Sign out from Firebase (this will also clear session data)
+                // This happens AFTER navigation so user doesn't see the flash
                 await context.read<AuthService>().signOut();
                 
-                // Close loading dialog
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
-                
-                // The AuthChecker will automatically redirect to login
-                // but we can force navigate to be sure
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/',
-                    (route) => false,
-                  );
-                }
               } catch (e) {
-                // Close loading dialog
+                // Close loading dialog if still showing
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   
@@ -476,6 +493,237 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _showDataManagementDialog(BuildContext context) async {
+    final currentUserId = context.read<AuthService>().currentUser?.uid;
+    final stats = await DataCleanupService.getDataStatistics(currentUserId);
+    
+    if (!context.mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.getCardColor(context),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(Icons.storage_rounded, color: AppTheme.getPrimaryColor(context)),
+            SizedBox(width: 8),
+            Text(
+              'Data Management',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getTextColor(context),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Current User Data',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.getPrimaryColor(context),
+                ),
+              ),
+              SizedBox(height: 8),
+              _buildStatItem('Budgets', stats['userBudgets'].toString(), stats['otherBudgets'].toString()),
+              _buildStatItem('Expenses', stats['userExpenses'].toString(), stats['otherExpenses'].toString()),
+              _buildStatItem('Notes', stats['userNotes'].toString(), stats['otherNotes'].toString()),
+              _buildStatItem('Goals', stats['userGoals'].toString(), stats['otherGoals'].toString()),
+              SizedBox(height: 16),
+              if (stats['otherBudgets'] > 0 || stats['otherExpenses'] > 0 || 
+                  stats['otherNotes'] > 0 || stats['otherGoals'] > 0)
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning_rounded, color: Colors.orange, size: 20),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Data from other users detected',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          if (stats['otherBudgets'] > 0 || stats['otherExpenses'] > 0 || 
+              stats['otherNotes'] > 0 || stats['otherGoals'] > 0)
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                _showCleanupConfirmation(context, currentUserId!);
+              },
+              child: Text(
+                'CLEANUP',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange,
+                ),
+              ),
+            ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'CLOSE',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getPrimaryColor(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String userCount, String otherCount) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+          Text(
+            '$userCount (yours) / $otherCount (others)',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: otherCount != '0' ? Colors.orange : Colors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showCleanupConfirmation(BuildContext context, String userId) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.getCardColor(context),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(
+          'Cleanup Data?',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: AppTheme.getTextColor(context),
+          ),
+        ),
+        content: Text(
+          'This will remove all data that doesn\'t belong to your account. Your data will not be affected.',
+          style: GoogleFonts.poppins(
+            color: AppTheme.getSecondaryTextColor(context),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'CANCEL',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: AppTheme.getPrimaryColor(context),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              
+              // Show loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.getCardColor(context),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          color: AppTheme.getPrimaryColor(context),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Cleaning up...',
+                          style: GoogleFonts.poppins(
+                            color: AppTheme.getTextColor(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+              
+              await DataCleanupService.cleanupOrphanedData(userId);
+              
+              if (context.mounted) {
+                Navigator.of(context).pop(); // Close loading
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.check_circle_rounded, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Data cleaned up successfully!'),
+                      ],
+                    ),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                );
+                
+                // Refresh the UI
+                setState(() {});
+              }
+            },
+            child: Text(
+              'CLEANUP',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.orange,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProfileSection(BuildContext context) {
     final user = context.read<AuthService>().currentUser;
     final userName = user?.displayName ?? 'User';
@@ -528,33 +776,24 @@ class ProfileScreen extends StatelessWidget {
                     color: AppTheme.getSecondaryTextColor(context),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppTheme.accentOrange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Premium User',
-                    style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      color: AppTheme.accentOrange,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
           IconButton(
-            onPressed: () {
-              // Navigate to Edit Profile Screen
-              Navigator.of(context).push(
+            onPressed: () async {
+              // Navigate to Edit Profile Screen and wait for result
+              final result = await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => EditProfileScreen(),
                 ),
               );
+              
+              // If profile was updated, refresh the UI
+              if (result == true && mounted) {
+                setState(() {
+                  // Force rebuild to show updated profile info
+                });
+              }
             },
             icon: Container(
               padding: EdgeInsets.all(8),

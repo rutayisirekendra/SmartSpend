@@ -44,10 +44,19 @@ class GlassmorphicCard extends StatelessWidget {
           BoxShadow(
             color: isDark 
                 ? Colors.black.withOpacity(0.3)
-                : Colors.black.withOpacity(0.08),
+                : Colors.black.withOpacity(0.12),
             blurRadius: blur,
             offset: const Offset(0, 4),
+            spreadRadius: isDark ? 0 : 1,
           ),
+          // Add second shadow for light mode for better depth
+          if (!isDark)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: blur * 2,
+              offset: const Offset(0, 8),
+              spreadRadius: 2,
+            ),
         ],
       ),
       child: ClipRRect(
@@ -58,13 +67,13 @@ class GlassmorphicCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDark
                   ? Colors.white.withOpacity(opacity)
-                  : Colors.white.withOpacity(0.7),
+                  : Colors.white.withOpacity(0.85),
               borderRadius: BorderRadius.circular(borderRadius),
               border: Border.all(
                 color: borderColor ?? 
                     (isDark 
                         ? Colors.white.withOpacity(0.2)
-                        : Colors.white.withOpacity(0.3)),
+                        : Colors.grey.withOpacity(0.25)),
                 width: borderWidth,
               ),
             ),

@@ -333,7 +333,7 @@ class AppTheme {
   }
 
   static Color getHeaderSecondaryColor(BuildContext context) {
-    return primaryTeal.withValues(alpha: 0.9); // Always use original green for headers
+    return primaryTeal.withOpacity(0.9); // Always use original green for headers
   }
 
   static Color getTextColor(BuildContext context) {
@@ -391,15 +391,15 @@ class AppTheme {
     double blur = 10,
   }) {
     return BoxDecoration(
-      color: Colors.white.withValues(alpha: opacity),
+      color: Colors.white.withOpacity(opacity),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: Colors.white.withOpacity(0.2),
         width: 1.5,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.3),
+          color: Colors.black.withOpacity(0.3),
           blurRadius: blur,
           offset: const Offset(0, 4),
         ),
@@ -420,7 +420,7 @@ class AppTheme {
       borderRadius: BorderRadius.circular(16),
       boxShadow: enabled ? [
         BoxShadow(
-          color: accentOrange.withValues(alpha: 0.4),
+          color: accentOrange.withOpacity(0.4),
           blurRadius: 16,
           offset: const Offset(0, 8),
         ),
@@ -463,8 +463,8 @@ class AppTheme {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            primaryTeal.withValues(alpha: 0.15),
-            primaryTeal.withValues(alpha: 0.08),
+            primaryTeal.withOpacity(0.15),
+            primaryTeal.withOpacity(0.08),
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -472,12 +472,12 @@ class AppTheme {
           bottomRight: Radius.circular(24),
         ),
         border: Border.all(
-          color: primaryTeal.withValues(alpha: 0.2),
+          color: primaryTeal.withOpacity(0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: primaryTeal.withValues(alpha: 0.1),
+            color: primaryTeal.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -491,7 +491,7 @@ class AppTheme {
           end: Alignment.bottomRight,
           colors: [
             primaryTeal,
-            primaryTeal.withValues(alpha: 0.9),
+            primaryTeal.withOpacity(0.9),
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -500,7 +500,7 @@ class AppTheme {
         ),
         boxShadow: [
           BoxShadow(
-            color: primaryTeal.withValues(alpha: 0.3),
+            color: primaryTeal.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -519,13 +519,19 @@ class AppTheme {
   static Color getHeaderIconBackground(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark 
-      ? primaryTeal.withValues(alpha: 0.15)
-      : Colors.white.withValues(alpha: 0.2);
+      ? primaryTeal.withOpacity(0.15)
+      : Colors.white.withOpacity(0.2);
   }
 
   // Get primary teal color that adapts to dark mode
   static Color getPrimaryTealColor(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? darkPrimaryTeal : primaryTeal;
+  }
+
+  static Color getBackgroundColor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkBackground
+        : offWhite;
   }
 }

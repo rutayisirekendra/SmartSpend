@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/app/theme/app_theme.dart';
 import 'package:smart_expense_tracker/common_widgets/themed_background.dart';
-import 'package:smart_expense_tracker/common_widgets/glassmorphic_card.dart';
+import 'package:smart_expense_tracker/common_widgets/modern_card.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/features/notes/screens/note_editor_screen.dart';
 import 'package:smart_expense_tracker/models/note_model.dart';
@@ -283,72 +283,69 @@ class _NotesListScreenState extends State<NotesListScreen> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        GlassmorphicCard(
-          blur: 15,
-          opacity: isDark ? 0.08 : 0.5,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'NOTES SUMMARY',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.getSecondaryTextColor(context),
-                        letterSpacing: 1,
-                      ),
+        ModernCard(
+          color: AppTheme.getCardColor(context),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'NOTES SUMMARY',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.getSecondaryTextColor(context),
+                      letterSpacing: 1,
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppTheme.getPrimaryColor(context).withOpacity(0.2), AppTheme.getPrimaryColor(context).withOpacity(0.1)],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppTheme.getPrimaryColor(context).withOpacity(0.2), AppTheme.getPrimaryColor(context).withOpacity(0.1)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.description_rounded,
+                          size: 14,
+                          color: AppTheme.getPrimaryColor(context),
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.description_rounded,
-                            size: 14,
+                        const SizedBox(width: 4),
+                        Text(
+                          '${notes.length} NOTES',
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
                             color: AppTheme.getPrimaryColor(context),
+                            letterSpacing: 1,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${notes.length} NOTES',
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.getPrimaryColor(context),
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    _buildSummaryItem(notes.length.toString(), 'Total'),
-                    _buildSummaryItem(
-                      notes.where((note) => note.isImportant).length.toString(),
-                      'Important',
-                    ),
-                    _buildSummaryItem(
-                      completedNotes.length.toString(),
-                      'Completed',
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  _buildSummaryItem(notes.length.toString(), 'Total'),
+                  _buildSummaryItem(
+                    notes.where((note) => note.isImportant).length.toString(),
+                    'Important',
+                  ),
+                  _buildSummaryItem(
+                    completedNotes.length.toString(),
+                    'Completed',
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 24),
@@ -545,128 +542,249 @@ class _NotesListScreenState extends State<NotesListScreen> {
     final isCompleted = note.isCompleted;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    return GlassmorphicCard(
-      blur: 15,
-      opacity: isDark ? 0.08 : 0.5,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    note.title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: isCompleted 
-                          ? AppTheme.getSecondaryTextColor(context)
-                          : AppTheme.getTextColor(context),
-                      decoration: isCompleted ? TextDecoration.lineThrough : null,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    // Get category from first tag or use 'General'
+    final category = note.tags.isNotEmpty ? note.tags.first : 'General';
+    final categoryColor = _getCategoryColor(category);
+    
+    return ModernCard(
+      color: AppTheme.getCardColor(context),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Icon container
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: categoryColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        note.isCompleted ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                        color: note.isCompleted ? Colors.green : AppTheme.getSecondaryTextColor(context),
-                        size: 20,
+                child: Icon(
+                  _getCategoryIcon(category),
+                  color: categoryColor,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Title and category
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [                    Text(
+                      note.title,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: isCompleted 
+                            ? AppTheme.getSecondaryTextColor(context)
+                            : AppTheme.getTextColor(context),
+                        decoration: isCompleted ? TextDecoration.lineThrough : null,
+                        height: 1.2,
                       ),
-                      onPressed: () => _toggleNoteCompletion(note, box),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(
-                        note.isImportant ? Icons.star_rounded : Icons.star_border_rounded,
-                        color: note.isImportant ? AppTheme.accentOrange : AppTheme.getSecondaryTextColor(context),
-                        size: 20,
-                      ),
-                      onPressed: () => _toggleNoteImportance(note, box),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(Icons.edit_rounded, color: AppTheme.getPrimaryColor(context), size: 20),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => NoteEditorScreen(note: note, noteKey: note.key),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: categoryColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        );
-                      },
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                          child: Text(
+                            category,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: categoryColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),                        const SizedBox(width: 8),
+                        if (note.isImportant)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.circle, size: 6, color: Colors.blue),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Today',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
-                  ],
+                  ],                ),
+              ),
+              // Pin icon - changes color when important/pinned
+              IconButton(
+                icon: Icon(
+                  note.isImportant ? Icons.push_pin : Icons.push_pin_outlined,
+                  color: note.isImportant 
+                      ? AppTheme.getAccentColor(context) 
+                      : AppTheme.getSecondaryTextColor(context).withOpacity(0.5),
+                  size: 20,
                 ),
-              ],
+                onPressed: () => _toggleNoteImportance(note, box),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                tooltip: note.isImportant ? 'Unpin note' : 'Pin note',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Content/Description in a box
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isDark 
+                  ? Colors.white.withOpacity(0.05)
+                  : Colors.black.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark 
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.black.withOpacity(0.05),
+                width: 1,
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
+            child: Text(
               note.content,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: isCompleted 
                     ? AppTheme.getSecondaryTextColor(context).withOpacity(0.7)
                     : AppTheme.getSecondaryTextColor(context),
-                height: 1.4,
+                height: 1.5,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (note.tags.isNotEmpty) ...[
-                  Wrap(
-                    spacing: 6,
-                    children: note.tags.take(2).map((tag) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        gradient: isCompleted 
-                            ? LinearGradient(
-                                colors: [Colors.grey.withOpacity(0.1), Colors.grey.withOpacity(0.05)],
-                              )
-                            : LinearGradient(
-                                colors: [AppTheme.getPrimaryColor(context).withOpacity(0.15), AppTheme.getPrimaryColor(context).withOpacity(0.08)],
-                              ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        tag,
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          color: isCompleted ? AppTheme.getSecondaryTextColor(context) : AppTheme.getPrimaryColor(context),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    )).toList(),
-                  ),
-                ],
-                Text(
-                  _formatDate(note.updatedAt),
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.getSecondaryTextColor(context),
-                  ),
+          ),
+          const SizedBox(height: 20),
+          // Action buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark 
+                      ? Colors.orange.withOpacity(0.15)
+                      : Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
-            ),
-          ],
-        ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.edit_rounded,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => NoteEditorScreen(note: note, noteKey: note.key),
+                      ),
+                    );
+                  },
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark 
+                      ? Colors.red.withOpacity(0.15)
+                      : Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.delete_rounded,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                  onPressed: () async {
+                    final confirmed = await _showDeleteConfirmation(note);
+                    if (confirmed) {
+                      setState(() {
+                        _deletedNoteKeys.add(note.key);
+                      });
+                      _deleteNote(note, box);
+                    }
+                  },
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
+  }
+
+  // Helper method to get category icon
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'education':
+        return Icons.school_rounded;
+      case 'work':
+        return Icons.work_rounded;
+      case 'personal':
+        return Icons.person_rounded;
+      case 'finance':
+      case 'financial':
+        return Icons.attach_money_rounded;
+      case 'health':
+        return Icons.favorite_rounded;
+      case 'shopping':
+        return Icons.shopping_bag_rounded;
+      case 'travel':
+        return Icons.flight_rounded;
+      default:
+        return Icons.note_alt_rounded;
+    }
+  }
+
+  // Helper method to get category color
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'education':
+        return const Color(0xFF4CAF50); // Green
+      case 'work':
+        return const Color(0xFF2196F3); // Blue
+      case 'personal':
+        return const Color(0xFF9C27B0); // Purple
+      case 'finance':
+      case 'financial':
+        return const Color(0xFFFF9800); // Orange
+      case 'health':
+        return const Color(0xFFE91E63); // Pink
+      case 'shopping':
+        return const Color(0xFFFF5722); // Deep Orange
+      case 'travel':
+        return const Color(0xFF00BCD4); // Cyan
+      default:
+        return AppTheme.getPrimaryColor(context);
+    }
   }
 
   Widget _buildSummaryItem(String value, String label) {

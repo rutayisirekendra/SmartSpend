@@ -143,9 +143,7 @@ class _LandingPageThreeState extends State<LandingPageThree>
   }
 
   Future<void> _navigateToAuth(BuildContext context) async {
-    // Mark onboarding as seen
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenOnboarding', true);
+    // No need to mark as seen - we want to show landing pages every time
     
     // Navigate to auth checker which handles login/signup flow
     if (context.mounted) {

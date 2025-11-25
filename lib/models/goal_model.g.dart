@@ -17,13 +17,13 @@ class GoalAdapter extends TypeAdapter<Goal> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Goal(
-      id: fields[0] as String,
-      userId: fields[1] as String,
-      name: fields[2] as String,
-      targetAmount: fields[3] as double,
-      currentAmount: fields[4] as double,
+      id: fields[0] as String? ?? '',
+      userId: fields[1] as String? ?? 'unknown',
+      name: fields[2] as String? ?? '',
+      targetAmount: fields[3] as double? ?? 0.0,
+      currentAmount: fields[4] as double? ?? 0.0,
       targetDate: fields[5] as DateTime?,
-      goalType: fields[6] as String,
+      goalType: fields[6] as String? ?? 'Other',
     );
   }
 

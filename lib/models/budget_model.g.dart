@@ -17,13 +17,13 @@ class BudgetAdapter extends TypeAdapter<Budget> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Budget(
-      id: fields[0] as String,
-      totalAmount: fields[1] as double,
-      categoryBudgets: (fields[2] as Map).cast<String, double>(),
-      month: fields[3] as DateTime,
-      budgetType: fields[4] as BudgetType,
-      startDate: fields[5] as DateTime,
-      userId: fields[6] as String,
+      id: fields[0] as String? ?? '',
+      totalAmount: fields[1] as double? ?? 0.0,
+      categoryBudgets: (fields[2] as Map?)?.cast<String, double>() ?? <String, double>{},
+      month: fields[3] as DateTime? ?? DateTime.now(),
+      budgetType: fields[4] as BudgetType? ?? BudgetType.monthly,
+      startDate: fields[5] as DateTime? ?? DateTime.now(),
+      userId: fields[6] as String? ?? 'unknown',
     );
   }
 

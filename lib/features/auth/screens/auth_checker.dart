@@ -1,15 +1,44 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_expense_tracker/features/auth/screens/login_screen.dart';
 import 'package:smart_expense_tracker/features/auth/screens/signup_screen.dart';
 import 'package:smart_expense_tracker/features/main/screens/main_screen.dart';
 import 'package:smart_expense_tracker/services/firebase_auth_service.dart';
+import 'package:smart_expense_tracker/services/data_cleanup_service.dart';
 
 /// This widget is the main gatekeeper of the app.
 /// It listens to the authentication state and shows the appropriate screen.
-class AuthChecker extends StatelessWidget {
+class AuthChecker extends StatefulWidget {
   const AuthChecker({super.key});
+
+  @override
+  State<AuthChecker> createState() => _AuthCheckerState();
+}
+
+class _AuthCheckerState extends State<AuthChecker> {
+  bool _hasCleanedData = false;
+
+  Future<void> _checkUserData(String userId) async {
+    if (_hasCleanedData) return;
+    
+    if (kDebugMode) {
+      print('📊 Checking data statistics for user: $userId');
+    }
+    
+    try {
+      // Just get statistics to log user's data - don't delete anything!
+      // Data isolation is handled by filtering with userId in each screen
+      await DataCleanupService.getDataStatistics(userId);
+      
+      _hasCleanedData = true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error checking data statistics: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,11 +121,20 @@ class AuthChecker extends StatelessWidget {
 
         // If a user is logged in (snapshot has data and user is not null)
         if (snapshot.hasData && snapshot.data != null) {
+          final user = snapshot.data!;
+          
+          // Check user's data statistics (no deletion)
+          if (!_hasCleanedData) {
+            _checkUserData(user.uid);
+          }
+          
           // Show the MainScreen which contains the bottom navigation
           return const MainScreen();
         }
 
         // If no user is logged in or user is null
+        // Reset cleanup flag when user logs out
+        _hasCleanedData = false;
         return const AuthPage(); // Show the Login/SignUp page flipper
       },
     );

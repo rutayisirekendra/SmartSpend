@@ -212,18 +212,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
     
     return Scaffold(
       body: ThemedBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(context, isDark),
-              Expanded(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: _buildForm(context, isDark),
-                ),
+        child: Column(
+          children: [
+            _buildHeader(context, isDark),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: _buildForm(context, isDark),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -231,7 +229,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> with SingleTickerPr
 
   Widget _buildHeader(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16,
+        bottom: 24,
+        left: 20,
+        right: 20,
+      ),
       decoration: AppTheme.getGlassmorphicHeaderDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
