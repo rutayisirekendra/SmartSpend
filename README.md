@@ -35,7 +35,6 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 - **Multi-Platform**: Android, iOS, Web, macOS, Windows & Linux (Flutter).
 - **Firebase Authentication**: Secure user authentication with email/password and session management.
 - **Smart Expense Tracking**: Create, edit, delete, categorize, and analyze expenses with receipt scanning.
-- **OCR Receipt Scanning**: Extract expense data from receipts automatically using Google ML Kit.
 - **Budget Management**: Set monthly/yearly budgets, track spending, and get smart alerts.
 - **Category System**: Work, Food, Transport, Entertainment, Healthcare, Education with custom icons & colors.
 - **Financial Goals**: Set savings goals, track progress, and celebrate achievements.
@@ -241,8 +240,7 @@ The app follows a feature-driven, provider-based architecture emphasizing declar
 2. User interactions trigger service methods (`addExpense`, `setBudget`, `scanReceipt`, etc.).
 3. Services update in-memory state & persist to Hive database with user isolation.
 4. Firebase Auth manages user sessions and authentication state.
-5. ML Kit OCR extracts text from receipt images for smart expense creation.
-6. Real-time analytics compute spending patterns and budget status automatically.
+5. Real-time analytics compute spending patterns and budget status automatically.
 
 ### State Management: Why Provider?
 - Simple, intuitive API with minimal boilerplate.
@@ -267,7 +265,6 @@ The app follows a feature-driven, provider-based architecture emphasizing declar
 | **Authentication** | Firebase Auth (`firebase_auth`, `firebase_core`) |
 | **Cloud Storage** | Cloud Firestore (`cloud_firestore`), Firebase Storage |
 | **Local Storage** | Hive (`hive`, `hive_flutter`) with code generation |
-| **ML & OCR** | Google ML Kit (`google_mlkit_text_recognition`) |
 | **Charts** | FL Chart (`fl_chart`) for interactive visualizations |
 | **UI & Fonts** | Google Fonts (`google_fonts`), Feather Icons |
 | **Image Handling** | Image Picker (`image_picker`) |
@@ -352,7 +349,6 @@ lib/
 ├── services/                         # Business logic services
 │   ├── firebase_auth_service.dart    # Authentication service
 │   ├── firestore_service.dart        # Cloud Firestore operations
-│   ├── ocr_service.dart              # ML Kit receipt scanning
 │   ├── session_service.dart          # Session management
 │   ├── network_service.dart          # Network status
 │   ├── data_cleanup_service.dart     # Data management
@@ -462,7 +458,6 @@ flowchart TB
 
 **⚡ Business Logic**
 - **Firebase Auth**: Secure authentication flow
-- **OCR Service**: ML Kit text recognition from receipts
 - **Data Services**: CRUD operations with validation
 
 **💾 Data Persistence**
@@ -485,7 +480,6 @@ flowchart TB
 | **Budget Management** | Monthly/yearly budgets, spending alerts, category-wise limits |
 | **Financial Goals** | Savings goals, progress tracking, achievement celebrations |
 | **Notes System** | Rich note-taking for financial planning and insights |
-| **OCR Integration** | Smart receipt scanning with ML Kit text recognition |
 | **Analytics Dashboard** | Interactive pie charts, spending trends, streak tracking |
 | **Category System** | Predefined & custom categories with colors and icons |
 | **Gamification** | Streak tracking, financial facts, motivational elements |
@@ -549,7 +543,7 @@ flutter test
 - Unit tests for models and services
 - Widget tests for critical UI components
 - Integration tests for expense tracking flows
-- OCR service testing with sample receipts
+
 
 ```bash
 # Run all tests
@@ -693,10 +687,6 @@ Please consider:
 - Open-source community for amazing packages
 
 ---
-
-## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ---
 
 ## 📬 Contact
