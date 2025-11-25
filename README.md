@@ -128,95 +128,159 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 </div>
 
 ---
-
 ## 📸 Feature Screenshots
 
 <div align="center">
 
-### ✨ Beautiful Interface & Powerful Features
+### ✨ Core Financial Features
 
 <table style="border: none;">
   <tr>
     <td align="center" width="25%">
       <div style="padding: 20px; background: linear-gradient(135deg, #1A535C, #4ECDC4); border-radius: 15px; margin: 10px;">
         <h4 style="color: white; margin-bottom: 15px;">📊 Dashboard</h4>
-        <img src="https://via.placeholder.com/300x600/1A535C/ffffff?text=📈+Financial+Overview" alt="Dashboard" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
-        <p style="color: white; font-size: 12px; margin-top: 10px;">Real-time analytics & insights</p>
+        <img src="screenshots/dashboard.png" alt="Dashboard" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+        <p style="color: white; font-size: 12px; margin-top: 10px;">Real-time financial overview & analytics</p>
       </div>
     </td>
     <td align="center" width="25%">
       <div style="padding: 20px; background: linear-gradient(135deg, #FF6B35, #FFA000); border-radius: 15px; margin: 10px;">
         <h4 style="color: white; margin-bottom: 15px;">💰 Expense Tracking</h4>
-        <img src="https://via.placeholder.com/300x600/FF6B35/ffffff?text=💸+Smart+Expenses" alt="Expenses" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
-        <p style="color: white; font-size: 12px; margin-top: 10px;">OCR scanning & categorization</p>
+        <img src="screenshots/expense.png" alt="Expenses" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+        <p style="color: white; font-size: 12px; margin-top: 10px;">Smart expense management & tracking</p>
       </div>
     </td>
     <td align="center" width="25%">
       <div style="padding: 20px; background: linear-gradient(135deg, #2196F3, #64B5F6); border-radius: 15px; margin: 10px;">
         <h4 style="color: white; margin-bottom: 15px;">🎯 Budget Manager</h4>
-        <img src="https://via.placeholder.com/300x600/2196F3/ffffff?text=💼+Budget+Control" alt="Budget" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
-        <p style="color: white; font-size: 12px; margin-top: 10px;">Smart budget tracking & alerts</p>
+        <img src="screenshots/budget.png" alt="Budget" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+        <p style="color: white; font-size: 12px; margin-top: 10px;">Smart budget creation & tracking</p>
       </div>
     </td>
     <td align="center" width="25%">
       <div style="padding: 20px; background: linear-gradient(135deg, #4CAF50, #81C784); border-radius: 15px; margin: 10px;">
-        <h4 style="color: white; margin-bottom: 15px;">🏆 Goals</h4>
-        <img src="https://via.placeholder.com/300x600/4CAF50/ffffff?text=🎯+Savings+Goals" alt="Goals" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
-        <p style="color: white; font-size: 12px; margin-top: 10px;">Track financial achievements</p>
+        <h4 style="color: white; margin-bottom: 15px;">🏆 Financial Goals</h4>
+        <img src="screenshots/goals.png" alt="Goals" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+        <p style="color: white; font-size: 12px; margin-top: 10px;">Track savings goals & achievements</p>
       </div>
     </td>
   </tr>
 </table>
 
-### 🎨 More Features
+### 🌙 Dark Mode Excellence
+
+<table style="border: none;">
+  <tr>
+    <td align="center" width="33%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #1A535C, #2d3047); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🌙 Dashboard Dark</h5>
+        <img src="screenshots/dashboarddark.png" alt="Dashboard Dark" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Financial overview in dark theme</p>
+      </div>
+    </td>
+    <td align="center" width="33%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🔐 Login Dark</h5>
+        <img src="screenshots/logindark.png" alt="Dark Login" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Secure authentication in dark mode</p>
+      </div>
+    </td>
+    <td align="center" width="33%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #2d3748, #4a5568); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">👤 Profile Dark</h5>
+        <img src="screenshots/profiledark.png" alt="Dark Profile" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">User profile with dark elegance</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+### 📈 Advanced Financial Management
 
 <table style="border: none;">
   <tr>
     <td align="center" width="33%">
       <div style="padding: 15px; background: linear-gradient(135deg, #9C27B0, #BA68C8); border-radius: 12px; margin: 10px;">
-        <h5 style="color: white; margin-bottom: 10px;">📷 OCR Scanning</h5>
-        <img src="https://via.placeholder.com/250x400/9C27B0/ffffff?text=📸+Receipt+Scanner" alt="OCR" style="width: 100%; border-radius: 8px;" />
+        <h5 style="color: white; margin-bottom: 10px;">📊 Budget Overview</h5>
+        <img src="screenshots/budgetoverviewdark.png" alt="Budget Overview" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Comprehensive budget analytics</p>
       </div>
     </td>
     <td align="center" width="33%">
       <div style="padding: 15px; background: linear-gradient(135deg, #FF6B35, #F57C00); border-radius: 12px; margin: 10px;">
         <h5 style="color: white; margin-bottom: 10px;">📝 Smart Notes</h5>
-        <img src="https://via.placeholder.com/250x400/FF6B35/ffffff?text=📋+Financial+Notes" alt="Notes" style="width: 100%; border-radius: 8px;" />
+        <img src="screenshots/notes.png" alt="Notes" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Financial notes & insights</p>
       </div>
     </td>
     <td align="center" width="33%">
-      <div style="padding: 15px; background: linear-gradient(135deg, #1A535C, #2d3047); border-radius: 12px; margin: 10px;">
-        <h5 style="color: white; margin-bottom: 10px;">🌙 Dark Mode</h5>
-        <img src="https://via.placeholder.com/250x400/1A535C/ffffff?text=🌓+Beautiful+Themes" alt="Dark Mode" style="width: 100%; border-radius: 8px;" />
+      <div style="padding: 15px; background: linear-gradient(135deg, #43e97b, #38f9d7); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">📈 Budget History</h5>
+        <img src="screenshots/budgethistory.png" alt="Budget History" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Track budget performance over time</p>
+      </div>
+    </td>
+  </tr>
+</table>
+
+### 🏷️ Organization & Onboarding
+
+<table style="border: none;">
+  <tr>
+    <td align="center" width="25%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #fa709a, #fee140); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🏷️ Categories</h5>
+        <img src="screenshots/categories.png" alt="Categories" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Smart expense categorization</p>
+      </div>
+    </td>
+    <td align="center" width="25%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #a8edea, #fed6e3); border-radius: 12px; margin: 10px;">
+        <h5 style="color: #333; margin-bottom: 10px;">🚀 Landing Light</h5>
+        <img src="screenshots/landinglight3.png" alt="Landing Light" style="width: 100%; border-radius: 8px;" />
+        <p style="color: #333; font-size: 11px; margin-top: 8px;">Welcome screen in light theme</p>
+      </div>
+    </td>
+    <td align="center" width="25%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🌙 Landing Dark 1</h5>
+        <img src="screenshots/landingdark1.png" alt="Landing Dark 1" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Dark theme welcome screen</p>
+      </div>
+    </td>
+    <td align="center" width="25%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #1A535C, #4ECDC4); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🌓 Landing Dark 2</h5>
+        <img src="screenshots/landingdark2.png" alt="Landing Dark 2" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Alternative dark landing view</p>
       </div>
     </td>
   </tr>
 </table>
 
 <div style="margin: 40px 0; padding: 30px; background: linear-gradient(135deg, #1A535C, #FF6B35); border-radius: 20px; color: white;">
-  <h3>🎮 Gamification & Learning Features</h3>
+  <h3>🎮 Smart Financial Management Features</h3>
   <div style="display: flex; justify-content: space-around; margin-top: 20px;">
     <div style="text-align: center;">
-      <div style="font-size: 3em;">🔥</div>
-      <p><strong>Streak Tracking</strong><br/>Maintain daily momentum</p>
-    </div>
-    <div style="text-align: center;">
-      <div style="font-size: 3em;">💡</div>
-      <p><strong>Financial Facts</strong><br/>Learn as you track</p>
-    </div>
-    <div style="text-align: center;">
       <div style="font-size: 3em;">📊</div>
-      <p><strong>Visual Analytics</strong><br/>Beautiful charts & insights</p>
+      <p><strong>Real-time Analytics</strong><br/>Live financial insights</p>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 3em;">💰</div>
+      <p><strong>Expense Tracking</strong><br/>Smart categorization</p>
     </div>
     <div style="text-align: center;">
       <div style="font-size: 3em;">🎯</div>
-      <p><strong>Smart Goals</strong><br/>Achieve financial targets</p>
+      <p><strong>Budget Control</strong><br/>Monthly/yearly planning</p>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-size: 3em;">🌓</div>
+      <p><strong>Dark/Light Themes</strong><br/>Beautiful theme switching</p>
     </div>
   </div>
 </div>
 
 </div>
-
 ---
 
 ## 🧩 Architecture Overview
