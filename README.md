@@ -611,20 +611,6 @@ Easily customizable for brand adaptation and user personalization.
 
 ---
 
-## 📷 OCR Receipt Scanning
-The app uses **Google ML Kit Text Recognition** to extract expense data from receipts:
-
-1. **Capture**: Take a photo or select from gallery
-2. **Process**: ML Kit extracts all text from the image
-3. **Parse**: Smart parsing to identify amounts, dates, and merchant names
-4. **Suggest**: Auto-fill expense form with extracted data
-5. **Edit**: User can review and modify before saving
-6. **Store**: Receipt image optionally stored with expense
-
-**Supported Formats**: JPEG, PNG, printed receipts with clear text
-
----
-
 ## 🎯 Target Audience
 - **Students**: Budget-conscious individuals managing limited income
 - **Young Adults**: Learning financial responsibility and tracking habits
