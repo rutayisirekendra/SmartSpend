@@ -20,9 +20,6 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
     <a href="https://pub.dev/packages/hive" target="_blank">
         <img alt="Hive" src="https://img.shields.io/badge/Hive-2.x-10B981?style=for-the-badge" />
     </a>
-    <a href="https://pub.dev/packages/google_mlkit_text_recognition" target="_blank">
-        <img alt="ML Kit" src="https://img.shields.io/badge/ML%20Kit-OCR-9333EA?style=for-the-badge" />
-    </a>
     <a href="https://m3.material.io/" target="_blank">
         <img alt="Material 3" src="https://img.shields.io/badge/Material%203-Design-FF6F61?style=for-the-badge" />
     </a>
