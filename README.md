@@ -673,7 +673,6 @@ Please consider:
 - Open-source community for amazing packages
 
 ---
----
 
 ## 📬 Contact
 Questions? Feedback? We'd love to hear from you:
