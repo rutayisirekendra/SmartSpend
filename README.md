@@ -144,17 +144,17 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
       </div>
     </td>
     <td align="center" width="25%">
-      <div style="padding: 20px; background: linear-gradient(135deg, #FF6B35, #FFA000); border-radius: 15px; margin: 10px;">
-        <h4 style="color: white; margin-bottom: 15px;">💰 Expense Tracking</h4>
-        <img src="screenshots/expense.png" alt="Expenses" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
-        <p style="color: white; font-size: 12px; margin-top: 10px;">Smart expense management & tracking</p>
-      </div>
-    </td>
-    <td align="center" width="25%">
       <div style="padding: 20px; background: linear-gradient(135deg, #2196F3, #64B5F6); border-radius: 15px; margin: 10px;">
         <h4 style="color: white; margin-bottom: 15px;">🎯 Budget Manager</h4>
         <img src="screenshots/budget.png" alt="Budget" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
         <p style="color: white; font-size: 12px; margin-top: 10px;">Smart budget creation & tracking</p>
+      </div>
+    </td>
+    <td align="center" width="25%">
+      <div style="padding: 20px; background: linear-gradient(135deg, #FF6B35, #FFA000); border-radius: 15px; margin: 10px;">
+        <h4 style="color: white; margin-bottom: 15px;">💰 Expense Tracking</h4>
+        <img src="screenshots/expense.png" alt="Expenses" style="width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);" />
+        <p style="color: white; font-size: 12px; margin-top: 10px;">Smart expense management & tracking</p>
       </div>
     </td>
     <td align="center" width="25%">
@@ -172,17 +172,17 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 <table style="border: none;">
   <tr>
     <td align="center" width="33%">
-      <div style="padding: 15px; background: linear-gradient(135deg, #1A535C, #2d3047); border-radius: 12px; margin: 10px;">
-        <h5 style="color: white; margin-bottom: 10px;">🌙 Dashboard Dark</h5>
-        <img src="screenshots/dashboarddark.png" alt="Dashboard Dark" style="width: 100%; border-radius: 8px;" />
-        <p style="color: white; font-size: 11px; margin-top: 8px;">Financial overview in dark theme</p>
-      </div>
-    </td>
-    <td align="center" width="33%">
       <div style="padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; margin: 10px;">
         <h5 style="color: white; margin-bottom: 10px;">🔐 Login Dark</h5>
         <img src="screenshots/logindark.png" alt="Dark Login" style="width: 100%; border-radius: 8px;" />
         <p style="color: white; font-size: 11px; margin-top: 8px;">Secure authentication in dark mode</p>
+      </div>
+    </td>
+    <td align="center" width="33%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #1A535C, #2d3047); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🌙 Dashboard Dark</h5>
+        <img src="screenshots/dashboarddark.png" alt="Dashboard Dark" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Financial overview in dark theme</p>
       </div>
     </td>
     <td align="center" width="33%">
@@ -200,15 +200,8 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 <table style="border: none;">
   <tr>
     <td align="center" width="33%">
-      <div style="padding: 15px; background: linear-gradient(135deg, #9C27B0, #BA68C8); border-radius: 12px; margin: 10px;">
-        <h5 style="color: white; margin-bottom: 10px;">📊 Budget Overview</h5>
-        <img src="screenshots/budgetoverviewdark.png" alt="Budget Overview" style="width: 100%; border-radius: 8px;" />
-        <p style="color: white; font-size: 11px; margin-top: 8px;">Comprehensive budget analytics</p>
-      </div>
-    </td>
-    <td align="center" width="33%">
       <div style="padding: 15px; background: linear-gradient(135deg, #FF6B35, #F57C00); border-radius: 12px; margin: 10px;">
-        <h5 style="color: white; margin-bottom: 10px;">📝 Smart Notes</h5>
+        <h5 style="color: white; margin-bottom: 10px;">📝 Financial Notes</h5>
         <img src="screenshots/notes.png" alt="Notes" style="width: 100%; border-radius: 8px;" />
         <p style="color: white; font-size: 11px; margin-top: 8px;">Financial notes & insights</p>
       </div>
@@ -220,6 +213,13 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
         <p style="color: white; font-size: 11px; margin-top: 8px;">Track budget performance over time</p>
       </div>
     </td>
+    <td align="center" width="33%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #9C27B0, #BA68C8); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">📊 Budget Overview</h5>
+        <img src="screenshots/budgetoverviewdark.png" alt="Budget Overview" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Comprehensive budget analytics</p>
+      </div>
+    </td>
   </tr>
 </table>
 
@@ -227,20 +227,6 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 
 <table style="border: none;">
   <tr>
-    <td align="center" width="25%">
-      <div style="padding: 15px; background: linear-gradient(135deg, #fa709a, #fee140); border-radius: 12px; margin: 10px;">
-        <h5 style="color: white; margin-bottom: 10px;">🏷️ Categories</h5>
-        <img src="screenshots/categories.png" alt="Categories" style="width: 100%; border-radius: 8px;" />
-        <p style="color: white; font-size: 11px; margin-top: 8px;">Smart expense categorization</p>
-      </div>
-    </td>
-    <td align="center" width="25%">
-      <div style="padding: 15px; background: linear-gradient(135deg, #a8edea, #fed6e3); border-radius: 12px; margin: 10px;">
-        <h5 style="color: #333; margin-bottom: 10px;">🚀 Landing Light</h5>
-        <img src="screenshots/landinglight3.png" alt="Landing Light" style="width: 100%; border-radius: 8px;" />
-        <p style="color: #333; font-size: 11px; margin-top: 8px;">Welcome screen in light theme</p>
-      </div>
-    </td>
     <td align="center" width="25%">
       <div style="padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 12px; margin: 10px;">
         <h5 style="color: white; margin-bottom: 10px;">🌙 Landing Dark 1</h5>
@@ -255,33 +241,24 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
         <p style="color: white; font-size: 11px; margin-top: 8px;">Alternative dark landing view</p>
       </div>
     </td>
+    <td align="center" width="25%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #a8edea, #fed6e3); border-radius: 12px; margin: 10px;">
+        <h5 style="color: #333; margin-bottom: 10px;">🚀 Landing Light</h5>
+        <img src="screenshots/landinglight3.png" alt="Landing Light" style="width: 100%; border-radius: 8px;" />
+        <p style="color: #333; font-size: 11px; margin-top: 8px;">Welcome screen in light theme</p>
+      </div>
+    </td>
+    <td align="center" width="25%">
+      <div style="padding: 15px; background: linear-gradient(135deg, #fa709a, #fee140); border-radius: 12px; margin: 10px;">
+        <h5 style="color: white; margin-bottom: 10px;">🏷️ Categories</h5>
+        <img src="screenshots/categories.png" alt="Categories" style="width: 100%; border-radius: 8px;" />
+        <p style="color: white; font-size: 11px; margin-top: 8px;">Smart expense categorization</p>
+      </div>
+    </td>
   </tr>
 </table>
 
-<div style="margin: 40px 0; padding: 30px; background: linear-gradient(135deg, #1A535C, #FF6B35); border-radius: 20px; color: white;">
-  <h3>🎮 Smart Financial Management Features</h3>
-  <div style="display: flex; justify-content: space-around; margin-top: 20px;">
-    <div style="text-align: center;">
-      <div style="font-size: 3em;">📊</div>
-      <p><strong>Real-time Analytics</strong><br/>Live financial insights</p>
-    </div>
-    <div style="text-align: center;">
-      <div style="font-size: 3em;">💰</div>
-      <p><strong>Expense Tracking</strong><br/>Smart categorization</p>
-    </div>
-    <div style="text-align: center;">
-      <div style="font-size: 3em;">🎯</div>
-      <p><strong>Budget Control</strong><br/>Monthly/yearly planning</p>
-    </div>
-    <div style="text-align: center;">
-      <div style="font-size: 3em;">🌓</div>
-      <p><strong>Dark/Light Themes</strong><br/>Beautiful theme switching</p>
-    </div>
-  </div>
-</div>
-
-</div>
----
+</div>---
 
 ## 🧩 Architecture Overview
 
