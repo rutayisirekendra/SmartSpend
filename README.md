@@ -2,7 +2,7 @@
 
 A premium, multi-platform Flutter expense tracking app designed specifically for students to manage their finances smartly. Track expenses, set budgets, achieve financial goals, and gain insights with beautiful UI, Firebase authentication and gamification elements.
 
-> Smart. Secure. Student-Focused. Built with Provider, Hive, Firebase, and ML Kit.
+> Smart. Secure. Student-Focused. Built with Provider, Hive, Firebase.
 
 <p align="center">
     <a href="https://flutter.dev" target="_blank">
