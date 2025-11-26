@@ -54,7 +54,7 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 <h3 style="color: white; margin-bottom: 30px;">🌟 Experience Smart Finance Management</h3>
 
 <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto;">
-  <a href="https://youtu.be/xv-U2_2HT48" target="_blank">
+  <a href="https://youtu.be/KeHhsCVKZS4" target="_blank">
     <img src="https://via.placeholder.com/800x450/1A535C/ffffff?text=📊+Play+Demo+Video" alt="Smart Expense Tracker Demo" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); transition: transform 0.3s ease;" />
   </a>
   
@@ -71,7 +71,7 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
   <img src="https://img.shields.io/badge/▶️%20Watch%20Full%20Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=CC0000" alt="Watch Demo" />
 </a>
 &nbsp;&nbsp;
-<a href="https://your-features-video.example" target="_blank">
+<a href="https://youtu.be/KeHhsCVKZS4" target="_blank">
   <img src="https://img.shields.io/badge/🚀%20Features%20Tour-1A535C?style=for-the-badge&logo=play&logoColor=white" alt="Features Tour" />
 </a>
 
