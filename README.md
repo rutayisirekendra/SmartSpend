@@ -122,7 +122,7 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 <br>
 
 <p style="margin-top: 15px; color: #718096; font-size: 14px; font-weight: 600;">
-⭐ Get started in seconds • No registration required
+⭐ Get started in seconds • 
 </p>
 
 </div>
