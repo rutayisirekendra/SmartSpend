@@ -54,26 +54,24 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 <h3 style="color: white; margin-bottom: 30px;">🌟 Experience Smart Finance Management</h3>
 
 <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto;">
-  <a href="https://youtu.be/KeHhsCVKZS4" target="_blank">
-    <img src="https://via.placeholder.com/800x450/1A535C/ffffff?text=📊+Play+Demo+Video" alt="Smart Expense Tracker Demo" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); transition: transform 0.3s ease;" />
-  </a>
-  
-  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-    <div style="width: 80px; height: 80px; background: rgba(255,107,53,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(0,0,0,0.2);">
-      <span style="font-size: 30px; margin-left: 5px;">▶️</span>
+  <a href="https://www.youtube.com/watch?v=KeHhsCVKZS4" target="_blank" style="text-decoration: none;">
+    <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); transition: transform 0.3s ease;">
+      <img 
+        src="https://img.youtube.com/vi/KeHhsCVKZS4/maxresdefault.jpg" 
+        alt="Smart Expense Tracker Demo Video"
+        style="width: 100%; height: auto; display: block; border-radius: 20px;"
+      />
     </div>
-  </div>
+  </a>
 </div>
 
 <br/>
 
-<a href="https://your-video-link.example" target="_blank">
-  <img src="https://img.shields.io/badge/▶️%20Watch%20Full%20Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=CC0000" alt="Watch Demo" />
-</a>
-&nbsp;&nbsp;
-<a href="https://youtu.be/KeHhsCVKZS4" target="_blank">
-  <img src="https://img.shields.io/badge/🚀%20Features%20Tour-1A535C?style=for-the-badge&logo=play&logoColor=white" alt="Features Tour" />
-</a>
+<div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+  <a href="https://youtu.be/KeHhsCVKZS4" target="_blank">
+    <img src="https://img.shields.io/badge/▶️%20Watch%20on%20YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white&labelColor=CC0000" alt="Watch on YouTube" />
+  </a>
+</div>
 
 <p style="color: white; margin-top: 20px; font-style: italic;">
   "See smart financial management in action! 💰✨"
