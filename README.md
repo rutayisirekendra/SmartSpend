@@ -87,8 +87,6 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 
 ## 📱 Download Smart Expense Tracker for Android
 
-<h2>📱 Quick Install</h2>
-
 <table>
 <tr>
 <td style="text-align: center; padding: 20px; border-right: 2px solid #e2e8f0;">
