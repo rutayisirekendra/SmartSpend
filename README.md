@@ -95,7 +95,7 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 </div>
 
 <div style="background: white; padding: 15px; border-radius: 12px; display: inline-block; box-shadow: 0 8px 25px rgba(72, 187, 120, 0.2); border: 2px solid #48bb78;">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://github.com/rutayisirekendra/checkme_Mid_to_do_app/releases/download/1.0.0/CheckMe_App&bgcolor=FFFFFF&color=48bb78&margin=10" alt="Download QR Code" width="160" style="display: block; border-radius: 8px;" />
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://github.com/rutayisirekendra/SmartSpend/releases/download/1.0.0/SmartSpend.apk&bgcolor=FFFFFF&color=48bb78&margin=10" alt="Download QR Code" width="160" style="display: block; border-radius: 8px;" />
 </div>
 
 <p style="margin-top: 15px; color: #4a5568; font-weight: 600; font-size: 14px;">
@@ -108,7 +108,7 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 💫 Direct Download
 </div>
 
-<a href="https://github.com/rutayisirekendra/checkme_Mid_to_do_app/releases/download/1.0.0/CheckMe_App">
+<a href="https://github.com/rutayisirekendra/SmartSpend/releases/download/1.0.0/SmartSpend.apk">
 <img src="https://img.shields.io/badge/⬇️%20Download%20Now-48BB78?style=for-the-badge&logo=android&logoColor=white&labelColor=38A169" alt="Download Now" />
 </a>
 
