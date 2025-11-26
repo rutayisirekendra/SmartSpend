@@ -87,39 +87,45 @@ A premium, multi-platform Flutter expense tracking app designed specifically for
 
 ## 📱 Download Smart Expense Tracker for Android
 
-<div style="background: linear-gradient(135deg, #1A535C 0%, #4ECDC4 100%); padding: 50px; border-radius: 30px; margin: 30px 0; box-shadow: 0 20px 50px rgba(26, 83, 92, 0.3);">
+<h2>📱 Quick Install</h2>
 
-<h3 style="color: white; margin-bottom: 40px;">🤖 Get Smart Expense Tracker on Your Android Device</h3>
-
-<div style="background: rgba(255,255,255,0.15); padding: 40px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-
-<img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white&labelColor=1A535C" alt="Android" style="margin-bottom: 30px;" />
-
-<div style="margin: 30px 0;">
-  <a href="https://github.com/your-org/smart-expense-tracker/releases/latest/download/smart-expense-tracker.apk" target="_blank">
-    <img src="https://img.shields.io/badge/📱%20Download%20APK-FFFFFF?style=for-the-badge&logo=download&logoColor=1A535C&labelColor=FF6B35" alt="Download APK" style="transform: scale(1.2);" />
-  </a>
+<table>
+<tr>
+<td style="text-align: center; padding: 20px; border-right: 2px solid #e2e8f0;">
+<div style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 600; font-size: 16px;">
+📱 Scan QR Code
 </div>
 
-<div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">
-  <img src="https://img.shields.io/badge/📦%20Size-~30MB-success?style=flat-square&labelColor=1A535C" alt="APK Size" />
-  <img src="https://img.shields.io/badge/📱%20Min%20SDK-21%20(Android%205.0)-orange?style=flat-square&labelColor=FF6B35" alt="Minimum Version" />
-  <img src="https://img.shields.io/badge/🚀%20Latest-v1.0.0-blue?style=flat-square&labelColor=2196F3" alt="Latest Version" />
+<div style="background: white; padding: 15px; border-radius: 12px; display: inline-block; box-shadow: 0 8px 25px rgba(72, 187, 120, 0.2); border: 2px solid #48bb78;">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://github.com/rutayisirekendra/checkme_Mid_to_do_app/releases/download/1.0.0/CheckMe_App&bgcolor=FFFFFF&color=48bb78&margin=10" alt="Download QR Code" width="160" style="display: block; border-radius: 8px;" />
 </div>
 
-<div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; border-left: 4px solid #FFF;">
-  <p style="color: white; margin: 0; font-size: 14px;">
-    <strong>📝 Quick Setup:</strong> Download → Enable "Unknown Sources" → Install → Start Tracking! 🎉
-  </p>
+<p style="margin-top: 15px; color: #4a5568; font-weight: 600; font-size: 14px;">
+📸 Scan to Download Instantly
+</p>
+</td>
+
+<td style="text-align: center; padding: 20px;">
+<div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 600; font-size: 16px;">
+💫 Direct Download
 </div>
 
-</div>
+<a href="https://github.com/rutayisirekendra/checkme_Mid_to_do_app/releases/download/1.0.0/CheckMe_App">
+<img src="https://img.shields.io/badge/⬇️%20Download%20Now-48BB78?style=for-the-badge&logo=android&logoColor=white&labelColor=38A169" alt="Download Now" />
+</a>
 
-<div style="margin-top: 30px;">
-  <img src="https://img.shields.io/badge/⭐-Star%20on%20GitHub-FFCA28?style=for-the-badge&logo=github&logoColor=black" alt="Star on GitHub" />
-  &nbsp;&nbsp;
-  <img src="https://img.shields.io/badge/🔄-Auto%20Updates-4CAF50?style=for-the-badge&logo=refresh&logoColor=white" alt="Auto Updates" />
-</div>
+<p style="margin-top: 15px; color: #4a5568; font-weight: 600; font-size: 14px;">
+🚀 25 MB • Fast & Secure
+</p>
+</td>
+</tr>
+</table>
+
+<br>
+
+<p style="margin-top: 15px; color: #718096; font-size: 14px; font-weight: 600;">
+⭐ Get started in seconds • No registration required
+</p>
 
 </div>
 
